@@ -17,9 +17,9 @@ def preprocess_datasets(datasets):
 if __name__ == "__main__":
     
     #list_name_file = ['../','../']
-    file_wisdm = '/home/jesimon/Documents/Project_sensors_dataset/wisdm/WISDM_ar_v1.1_raw.txt'
-    dir_datasets = '/home/jesimon/Documents/Project_sensors_dataset/dataset_preprocess/wisdm/'
-    file_save = '/home/jesimon/Documents/Project_sensors_dataset/dataset_preprocess/wisdm_loso'
+    file_wisdm = '/storage/datasets/sensors/WISDM_ar_v1.1/WISDM_ar_v1.1_raw.txt'
+    dir_datasets = '/storage/datasets/JB/sensors/wisdm/'
+    file_save = '/storage/datasets/JB/sensors/loso/'
     
     #Creating dataset
     w = Wisdm('Wisdm',file_wisdm, dir_datasets)
