@@ -21,4 +21,4 @@ source activate pix_hell2
 
 conda info --envs
 
-srun python ./main.py
+srun python ./main.py /storage/datasets/sensors/WISDM_ar_v1.1/WISDM_ar_v1.1_raw.txt /storage/datasets/JB/sensors/wisdm/ /storage/datasets/JB/sensors/loso/
