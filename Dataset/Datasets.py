@@ -76,8 +76,7 @@ class Wisdm(Dataset):
         for line in lines:
             try:
                 split = line.strip().replace(';','').split(',')
-                subject, act, time_stamp, x, y, z = split
-
+                subject, act, time_stamp, x, y, z = split[0], split[1], split[2], split[3], split[4], split[5] 
                 #It is the same trial
                 if iterator < len(lines)-1 and lines[iterator+1].split(',')[1] == act and lines[iterator+1].split(',')[0] == subject:
                         if time_stamp != '0': #timestamp equal to zero is a bug of the trial

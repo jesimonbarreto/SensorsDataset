@@ -125,8 +125,11 @@ class Loso(object):
             Y[i, activity[y[i]]] = 1.
         return Y
 
-    def simple_generate(self, file_name, new_freq = 20):
-
+    def simple_generate(self, dir_save_file, new_freq = 20):
+        if len(self.list_datasets) == 1:
+            name_file = '{}_f{}_t{}'.format(self.list_datasets[0].name, new_freq, self.time_wd)
+        else:
+            name_file = 'Multi_f{}_t{}'.format(new_freq, self.time_wd)
         files_s = []
         for id_, dtb in enumerate(self.list_datasets):
             files_s.append([])
@@ -169,8 +172,7 @@ class Loso(object):
             self.X = np.array(self.X)
             y_names = np.array(self.y)
             #self.y = _to_categorical(y_names, len(self.activity))
-            np.savez_compressed(file_name, X=self.X, y=self.y, folds=folds)
-
+            np.savez_compressed(file_name+name_file, X=self.X, y=self.y, folds=folds)
         else:
             print('Problem at lines')
             for row in invalid_rows:
