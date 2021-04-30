@@ -154,7 +154,6 @@ class Loso(object):
 
         invalid_rows = []
         for row in self.fundamental_matrix:
-            #show dataset that happened error
             print(row)
             check_zeros = np.where(row != 0.)
             if check_zeros[0].shape[0] < 2: #An activity is performed just by one subject
