@@ -172,7 +172,7 @@ class Loso(object):
             self.X = np.array(self.X)
             y_names = np.array(self.y)
             #self.y = _to_categorical(y_names, len(self.activity))
-            np.savez_compressed(file_name+name_file, X=self.X, y=self.y, folds=folds)
+            np.savez_compressed(dir_save_file+name_file, X=self.X, y=self.y, folds=folds)
         else:
             print('Problem at lines')
             for row in invalid_rows:
