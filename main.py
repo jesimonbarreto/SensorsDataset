@@ -25,9 +25,6 @@ if __name__ == "__main__":
         dir_datasets = '/home/jesimon/Documents/Project_sensors_dataset/dataset_preprocess/'
         dir_save_file = '/home/jesimon/Documents/Project_sensors_dataset/'
         
-    #file_wisdm = '/storage/datasets/sensors/WISDM_ar_v1.1/WISDM_ar_v1.1_raw.txt'
-    #dir_datasets = '/storage/datasets/JB/sensors/wisdm/'
-    #file_save = '/storage/datasets/JB/sensors/loso/'
     
     #Creating dataset
     #name, dir_dataset, dir_save, freq = 100, trial_per_file=100000
