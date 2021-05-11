@@ -2,6 +2,7 @@ import numpy as np
 import csv, sys, glob, os, pickle
 import pandas as pd
 from abc import ABCMeta, abstractmethod
+from enum import Enum
 
 #Class name pattern - use gerund with the first capital letter
 #Examples: Walking, Standing, Upstairs
@@ -65,8 +66,6 @@ class Wisdm(Dataset):
     def preprocess(self):
         file_name = self.dir_dataset
         output_dir = self.dir_save
-        separator = '_'
-        idx_label = 1
 
         f = open(file_name)
         lines = f.readlines()
@@ -92,12 +91,54 @@ class Wisdm(Dataset):
                 print('Erro :'+line)
         self.save_data(output_dir)
 
+class Sensors_MHEALTH(Enum):
+    acc_chest_X = 0
+    acc_chest_Y = 1 
+    acc_chest_Z = 2
+    elecd_l1 = 3
+    elecd_l2 = 4 
+    acc_left_ankle_X = 4
+    acc_left_ankle_Y = 5
+    acc_left_ankle_Z = 6
+    gyr_left_ankle_X = 7
+    gyr_left_ankle_Y = 8 
+    gyr_left_ankle_Z = 9
+    mag_left_ankle_X = 10
+    mag_left_ankle_Y = 11
+    mag_left_ankle_Z = 12
+    acc_right_arm_X = 13
+    acc_right_arm_Y = 14
+    acc_right_arm_Z = 15
+    gyr_right_arm_X = 16
+    gyr_right_arm_Y = 17
+    gyr_right_arm_Z = 18
+    mag_right_arm_X = 19
+    mag_right_arm_Y = 20
+    mag_right_arm_Z = 21
 
 class MHEALTH(Dataset):
+    def __init__(self, name, dir_dataset, dir_save, freq = 100, trial_per_file=100000):
+        super().__init__(name, dir_dataset, dir_save, freq, trial_per_file)
+
+        self.act_code = {0:'nothing',1:'Standing',2: 'Sitting', 3: 'Lying down', 4:'Walking', 5: 'Climbing stairs', 
+                    6: 'Waist bends forward', 7: 'Frontal elevation of arms', 8: 'Knees bending (crouching)',
+                    9: 'Cycling', 10: 'Jogging', 11: 'Running', 12: 'Jump front & back'}
+        
+        self.sensors_use = []
+
+    def set_signals_use(self, signals):
+        for s in signals:
+            self.sensors_use.append(s.value)
+
+    def tratment_act(act):
+        new_act = []
+        for a in act:
+            new_act.append(self.act_code[int(a)])
+        return new_act
 
     def preprocess(self):
-        files = glob.glob(pathname='*.log')
-        output_dir = '../output'
+        files = glob.glob(self.dir_dataset) #glob.glob(pathname='*.log')
+        output_dir = self.dir_save  #'../output'
 
         subject = 0
         for file in files:
@@ -112,22 +153,32 @@ class MHEALTH(Dataset):
                 columns = len(split)-1
                 if len(split) < 24:
                     print('Error')
-
+                
                 act = split[columns]
+
 
                 #It is the same trial
                 if iterator != len(lines)-1 and lines[iterator+1].split('   ')[len(split)-1].replace('\n','') == act:
-                    trial.append(split[0:columns])
-
+                    if len(self.sensors_use)>1:
+                        for d in self.sensors_use:
+                            data.append(split[d.value])
+                        dc = np.column_stack(data)
+                    else:
+                        dc = split[0:columns]
+                    trial.append(dc)
+                
                 #The next line will be a novel trial
                 else:
-                    self.save_file(act, subject, trial_id, trial)
+                    act = tratment_act(act)
+                    
+                    self.add_info_data(act, subject, trial_id, trial)
                     trial_id = trial_id + 1
                     trial = []
 
                 iterator = iterator + 1
-            print('file_name:[{}] s:[{}]'.format(file, subject))
-
+            
+            #print('file_name:[{}] s:[{}]'.format(file, subject))
+        self.save_data(output_dir)
 
 class PAMAP2(Dataset):
 

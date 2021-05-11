@@ -1,8 +1,12 @@
 import numpy as np
 import csv, sys, glob, os
 import pandas as pd
+from enum import Enum
+
 from Dataset.Datasets import Wisdm
+from Dataset.Datasets import MHEALTH
 from Process.Protocol import Loso
+from Dataset.Datasets import Sensors_MHEALTH as ss_mth
 from Signal.Transform import interpolate_sensors
 
 
@@ -29,9 +33,16 @@ if __name__ == "__main__":
     #Creating dataset
     #name, dir_dataset, dir_save, freq = 100, trial_per_file=100000
     w = Wisdm('Wisdm', file_wisdm, dir_datasets, freq = 20, trial_per_file = 1000000)
+    m = MHEALTH('Mhealth', file_wisdm, dir_datasets, freq = 20, trial_per_file = 1000000)
+    
+    signals_m = [ss_mth.acc_chest_X, ss_mth.acc_chest_Y] 
+    m.set_signals_use(signals_m)
+
+    
     #list datasets
     datasets = [w]
     preprocess_datasets(datasets)
+
     
     #Creating Loso evaluate generating
     generate_ev = Loso(datasets, overlapping = 0.0, time_wd=5)
