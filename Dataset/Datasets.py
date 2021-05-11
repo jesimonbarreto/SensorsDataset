@@ -1,7 +1,12 @@
-import numpy as np
-import csv, sys, glob, os, pickle
-import pandas as pd
+import glob
+import os
+import pickle
 from abc import ABCMeta, abstractmethod
+
+import numpy as np
+import pandas as pd
+from scipy.io import loadmat
+
 
 #Class name pattern - use gerund with the first capital letter
 #Examples: Walking, Standing, Upstairs
@@ -33,7 +38,7 @@ class Dataset(metaclass=ABCMeta):
     def add_info_data(self, act, subject, trial_id, trial, output_dir):
         output_name = '{}_s{}_t{}'.format(act.lower(), subject, trial_id)
         self.data[output_name] = trial
-        if trial_id % self.trial_per_file == 0 and trial_id!=0:
+        if trial_id % self.trial_per_file == 0 and trial_id != 0:
             try:
                 with open(output_dir+self.name+'_'+str(self.n_pkl)+'.pkl', 'wb') as handle:
                     pickle.dump(self.data, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -172,3 +177,28 @@ class PAMAP2(Dataset):
                 iterator = iterator + 1
             print('file_name:[{}] s:[{}]'.format(file, subject))
             print('{} incorrect lines in file {}'.format(str(incorrect), file))
+
+
+class WHARF(Dataset):
+    def preprocess(self):
+        pass
+
+
+class USCHAD(Dataset):
+    def preprocess(self):
+        mat_files = []
+        for root, dirs, files in os.walk(self.dir_dataset):
+            if len(dirs) == 0:
+                mat_files = [os.path.join(root, f) for f in files]
+
+        for filepath in mat_files:
+            mat_file = loadmat(filepath)
+            act = mat_file['activity'][0]
+            subject = int(mat_file['subject'][0])
+            trial_id = int(mat_file['trial'][0])
+            trial = mat_file['sensor_readings']
+
+            self.add_info_data(act, subject, trial_id, trial, self.dir_save)
+            print('file_name:[{}] s:[{}]'.format(filepath, subject))
+
+        self.save_data(self.dir_save)
