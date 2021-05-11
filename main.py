@@ -1,7 +1,7 @@
 import numpy as np
 import csv, sys, glob, os
 import pandas as pd
-from Dataset.Datasets import Wisdm
+from Dataset.Wisdm import Wisdm
 from Process.Protocol import Loso
 from Signal.Transform import interpolate_sensors
 

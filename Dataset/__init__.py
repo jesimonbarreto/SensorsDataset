@@ -1,4 +1,4 @@
 from .Datasets import Dataset
-from .Datasets import Wisdm
-from .Datasets import MHEALTH
-from .Datasets import PAMAP2
+from .Wisdm import Wisdm
+from .Mhealth import MHEALTH
+from .Pamap2 import PAMAP2
