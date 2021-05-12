@@ -1,4 +1,11 @@
 from .Datasets import Dataset
+import os
+import pandas as pd
+import zipfile
+import glob
+import csv
+import random
+import numpy as np
 class cook2020(Dataset):
 	#https://abc-research.github.io/cook2020/
 	
@@ -37,9 +44,31 @@ class cook2020(Dataset):
 			return data, data_count
 		# merge train and test first!
 		
+		
+#		zip_train = zipfile.ZipFile(os.path.join(self.dir_dataset,'train.zip'))
+#		zip_train.extractall(self.dir_dataset)
+#		zip_test = zipfile.ZipFile(os.path.join(self.dir_dataset,'test.zip'))
+#		zip_test.extractall(self.dir_dataset)
+#		zip_train.close()
+#		zip_test.close()
+		
+		#get The labels:
+		# read the labels
+		testLabels = os.path.join(self.dir_dataset, 'test-labels.csv')
+		testLabels = pd.read_csv(testLabels, sep=';',  header=[0, 1]).iloc[:, 0:2]
+		testLabels.columns = ['idx','act']
+		
+		trainLabels = pd.read_csv(os.path.join(self.dir_dataset,'train','labels.txt'), delimiter = "\t",sep = ',')
+		trainLabels.columns = ['act']
+		trainLabels = trainLabels['act'].str.split(',',expand = True).iloc[:,0:2]
+		trainLabels.columns = ['idx','act']
+		
+		labels = pd.concat([trainLabels, testLabels], axis=0)
+		labels = labels.set_index('idx')
+
 		min_data_count = 100
 		sub_dirs = sensor_list
-		files = os.listdir(os.path.join(self.dir_dataset, sub_dirs[0]))
+
 		number_of_samples = 500
 		
 		trial_id_ = dict()
@@ -49,45 +78,45 @@ class cook2020(Dataset):
 		trial_id_['4'] = 0
 		
 		
-		# read the labels
-		labels_loc = os.path.join(self.dir_dataset, 'LabelTable.csv')
-		file_label = open(labels_loc, newline='', encoding="utf8")
-		label_reader = pd.read_csv(labels_loc, sep=';', index_col=0, header=[0, 1]).iloc[:, 0:1]
-		
-		for f in files:
-			st_index = 0
-			end_index = 30000
-			step = 1000  # overlapping window, step
-			window_index = 10000  # 6 second window
-			f_name = f.split('.')[0]
+		for part in ['train','test']:
+			path =os.path.join(self.dir_dataset,part)
+			file = os.listdir(os.path.join(path, sub_dirs[0]))
 			
-			if f_name not in pd.unique(label_reader.index):
-				continue
-			
-			curr_label_file = label_reader.loc[f_name].values[0]
-			curr_subject = f_name.split('_')[0][-1]
-			while st_index + step < end_index:
+			for f in file:
 				
-				data, data_count = parse_IMU(self.dir_dataset, sub_dirs, st_index, st_index + window_index, f,
-				                             number_of_samples)
-				st_index = st_index + step
+				st_index = 0
+				end_index = 30000
+				step = 1000  # overlapping window, step
+				window_index = 10000  # 6 second window
+				f_name = f.split('.')[0]
 				
-				if data_count < min_data_count:
+				if f_name not in pd.unique(labels.index):
 					continue
 				
-				
-				train_data_sample = np.zeros((len(sensor_list ) *3, number_of_samples))
-				train_data_label = curr_label_file
-				for i in range(len(data)):
-					for j in range(len(data[i])):
-						train_data_sample[i * 3, j] = data[i][j][0]
-						train_data_sample[i * 3 + 1, j] = data[i][j][1]
-						train_data_sample[i * 3 + 2, j] = data[i][j][2]
-				trial = np.transpose(train_data_sample, (1, 0))
-				# trial = np.expand_dims(act, axis=0)
-				act = train_data_label[0].upper() + train_data_label[1:]
-				trial_id = trial_id_[curr_subject]
-				trial = train_data_sample
-				self.add_info_data(act, curr_subject ,trial_id , trial, self.dir_save)
-				trial_id_[curr_subject] += 1
+				curr_label_file = labels.loc[f_name].values[0]
+				curr_subject = f_name.split('_')[0][-1]
+				while st_index + step < end_index:
+					
+					data, data_count = parse_IMU(path, sub_dirs, st_index, st_index + window_index, f,
+					                             number_of_samples)
+					st_index = st_index + step
+					
+					if data_count < min_data_count:
+						continue
+					
+					
+					train_data_sample = np.zeros((len(sensor_list ) *3, number_of_samples))
+					train_data_label = curr_label_file
+					for i in range(len(data)):
+						for j in range(len(data[i])):
+							train_data_sample[i * 3, j] = data[i][j][0]
+							train_data_sample[i * 3 + 1, j] = data[i][j][1]
+							train_data_sample[i * 3 + 2, j] = data[i][j][2]
+					trial = np.transpose(train_data_sample, (1, 0))
+					# trial = np.expand_dims(act, axis=0)
+					act = train_data_label[0].upper() + train_data_label[1:]
+					trial_id = trial_id_[curr_subject]
+					trial = train_data_sample
+					self.add_info_data(act, curr_subject ,trial_id , trial, self.dir_save)
+					trial_id_[curr_subject] += 1
 		self.save_data(self.dir_save)
