@@ -39,7 +39,7 @@ class UTDMHAD1(Dataset):
             act = int(os.path.split(f)[-1].split("_")[0].split("a")[-1])
             subject = int(os.path.split(f)[-1].split("_")[1].split("s")[-1])
             trial_id = int(os.path.split(f)[-1].split("_")[2].split("t")[-1])
-            trial = loadmat(f)['d_iner'][0:3]
+            trial = loadmat(f)['d_iner'][:, 0:3]
             if act in activities:
                 act_name = actNameUTDMHAD1[act]
                 #print('{} {} {}'.format(act_name, subject, trial_id))
