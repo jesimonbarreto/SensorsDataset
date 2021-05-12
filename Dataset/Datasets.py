@@ -21,6 +21,7 @@ class Dataset(metaclass=ABCMeta):
         self.trial_per_file = trial_per_file
         self.n_pkl = 0
         self.labels = {}
+        self.sensors_use = []
     
     #
     # Comentários: Função que salva arquivo intermediário igual
@@ -30,6 +31,10 @@ class Dataset(metaclass=ABCMeta):
         output_file_name = output_dir+output_file_name
 
         np.savetxt(X=trial, fmt='%s', fname=output_file_name, delimiter=' ')
+    
+    def set_signals_use(self, signals):
+        for s in signals:
+            self.sensors_use.append(s.value)
     
     def add_info_data(self, act, subject, trial_id, trial, output_dir):
         output_name = '{}_s{}_t{}'.format(act.lower(), subject, trial_id)
@@ -126,11 +131,7 @@ class MHEALTH(Dataset):
         
         self.sensors_use = []
 
-    def set_signals_use(self, signals):
-        for s in signals:
-            self.sensors_use.append(s.value)
-
-    def tratment_act(act):
+    def tratment_act(self, act):
         new_act = []
         for a in act:
             new_act.append(self.act_code[int(a)])
@@ -160,6 +161,7 @@ class MHEALTH(Dataset):
                 #It is the same trial
                 if iterator != len(lines)-1 and lines[iterator+1].split('   ')[len(split)-1].replace('\n','') == act:
                     if len(self.sensors_use)>1:
+                        data = []
                         for d in self.sensors_use:
                             data.append(split[d.value])
                         dc = np.column_stack(data)
@@ -169,7 +171,7 @@ class MHEALTH(Dataset):
                 
                 #The next line will be a novel trial
                 else:
-                    act = tratment_act(act)
+                    act = self.tratment_act(act)
                     
                     self.add_info_data(act, subject, trial_id, trial)
                     trial_id = trial_id + 1
