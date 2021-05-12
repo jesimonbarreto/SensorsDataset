@@ -7,7 +7,6 @@ from Dataset.Datasets import Wisdm
 from Dataset.Datasets import MHEALTH
 from Process.Protocol import Loso
 from Dataset.Datasets import Sensors_MHEALTH as ss_mth
-from Signal.Transform import interpolate_sensors
 
 
 def preprocess_datasets(datasets):
