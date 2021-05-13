@@ -1,6 +1,24 @@
-from Dataset.Datasets import Dataset
-from scipy.io import loadmat
 import os
+
+from scipy.io import loadmat
+
+from Dataset.Datasets import Dataset
+
+
+actNameUSCHAD = {
+    1:  'Walking Forward',
+    2:  'Walking Left',
+    3:  'Walking Right',
+    4:  'Walking Upstairs',
+    5:  'Walking Downstairs',
+    6:  'Running Forward',
+    7:  'Jumping Up',
+    8:  'Sitting',
+    9:  'Standing',
+    10: 'Sleeping',
+    11: 'Elevator Up',
+    12: 'Elevator Down',
+}
 
 
 class USCHAD(Dataset):
@@ -8,7 +26,7 @@ class USCHAD(Dataset):
         mat_files = []
         for root, dirs, files in os.walk(self.dir_dataset):
             if len(dirs) == 0:
-                mat_files = [os.path.join(root, f) for f in files]
+                mat_files.extend([os.path.join(root, f) for f in files])
 
         for filepath in mat_files:
             mat_file = loadmat(filepath)
