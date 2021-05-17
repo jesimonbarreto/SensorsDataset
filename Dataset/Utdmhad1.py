@@ -1,8 +1,20 @@
-from Dataset.Datasets import Dataset
+from .Datasets import Dataset
 import numpy as np
 import glob
 import os
 from scipy.io import loadmat
+from enum import Enum
+
+
+class SignalsUtdmhad1(Enum):
+    acc_hand_X = 1
+    acc_hand_Y = 2 
+    acc_hand_Z = 3
+    gyr_hand_X = 4
+    gyr_hand_Y = 5
+    gyr_hand_Z = 6
+
+
 
 actNameUTDMHAD1 = {
         1: 'right arm swipe to the left',
@@ -39,7 +51,12 @@ class UTDMHAD1(Dataset):
             act = int(os.path.split(f)[-1].split("_")[0].split("a")[-1])
             subject = int(os.path.split(f)[-1].split("_")[1].split("s")[-1])
             trial_id = int(os.path.split(f)[-1].split("_")[2].split("t")[-1])
-            trial = loadmat(f)['d_iner'][:, 0:3]
+            samples = loadmat(f)['d_iner']
+            data = []
+            for d in self.signals_use:
+                data.append(samples[:,d.value]) #[:, 0:3]
+            trial = np.column_stack(data)
+                
             if act in activities:
                 act_name = actNameUTDMHAD1[act]
                 #print('{} {} {}'.format(act_name, subject, trial_id))

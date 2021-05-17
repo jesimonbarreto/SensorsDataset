@@ -4,6 +4,12 @@ from scipy.io import loadmat
 
 from Dataset.Datasets import Dataset
 
+from enum import Enum
+
+class SignalsUSCHAD(Enum):
+    acc_hand_X = 0
+    acc_hand_Y = 1 
+    acc_hand_Z = 2
 
 actNameUSCHAD = {
     1:  'Walking Forward',

@@ -2,8 +2,14 @@ import os
 
 import numpy as np
 
-from Dataset.Datasets import Dataset
+from .Datasets import Dataset
 
+from enum import Enum
+
+class SignalsWharf(Enum):
+    acc_hand_X = 0
+    acc_hand_Y = 1 
+    acc_hand_Z = 2
 
 actNameWHARF = {
     1:  'Brush teeth',
@@ -40,7 +46,10 @@ class WHARF(Dataset):
                 trial = f.read().split()
                 trial = list(map(int, trial))
                 trial = np.array(trial).reshape(-1, 3)
-
+                data = []
+                for d in self.signals_use:
+                    data.append(trial[:,d.value])
+                trial = np.column_stack(data)
                 self.add_info_data(act, subject, trial_id, trial, self.dir_save)
                 print('file_name:[{}] s:[{}]'.format(filepath, subject))
 

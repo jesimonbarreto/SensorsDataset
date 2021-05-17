@@ -57,7 +57,10 @@ class Loso(object):
 
     def label_generator(self, files):
         #self.label_idx = -1
-        for fl in files:
+        for pkl in files:
+            with open(pkl, 'rb') as handle:
+                data = pickle.load(handle)
+            fl = [i for i in data.keys()]
             for file in fl:
                 label = file.split(self.separator)[self.idx_label]#[1:]#USCHAD
                 if label not in self.activity.keys():
@@ -69,7 +72,10 @@ class Loso(object):
     def subject_trials(self,files):
         #subject = {}
         #subject_idx = -1
-        for fl in files:
+        for pkl in files:
+            with open(pkl, 'rb') as handle:
+                data = pickle.load(handle)
+            fl = [i for i in data.keys()]
             for file in fl:
                 idx = file.split(self.separator)[self.idx_subject]#[-2:]
                 #idx = file.split("_")[idx_subject][7:] #USCHAD
@@ -79,11 +85,13 @@ class Loso(object):
             
         return self.subject
 
-    def data_generator(self, files, data_name, input_file, freq_data, new_freq):
+    def data_generator(self, files, data_name, dir_input_file, freq_data, new_freq):
 
         for id_, fl in enumerate(files):
-            with open(input_file+data_name+'_'+str(id_)+'.pkl', 'rb') as handle:
+            pkl = os.path.join(dir_input_file, data_name+'_'+str(id_)+'.pkl')
+            with open(pkl, 'rb') as handle:
                 data = pickle.load(handle)
+            fl = [i for i in data]
             for file in fl:
                 label_ = file.split(self.separator)[self.idx_label]
                 if len(self.consult_label) > 0:
@@ -93,10 +101,6 @@ class Loso(object):
                 subject_idx_ = self.subject[subject_]
                 
                 trial = data[file]
-
-                #fazer tratamento dos valores se necessário
-                #trial = np.genfromtxt(file_name, delimiter=' ', filling_values=np.nan,
-                #                    case_sensitive=True, deletechars='',replace_space=' ')
                 
                 samples = self.sw(trial = trial, freq = freq_data)
 
@@ -110,6 +114,10 @@ class Loso(object):
                     self.groups.append(subject_idx_)
                     self.fundamental_matrix[label][subject_idx_] += 1
 
+    def remove_subject(code):
+        pass
+    def remove_action(code):
+        pass
 
     def _to_categorical(self,y, nb_classes=None):
         '''Convert class vector (integers from 0 to nb_classes)
@@ -130,17 +138,19 @@ class Loso(object):
             name_file = '{}_f{}_t{}'.format(self.list_datasets[0].name, new_freq, self.time_wd)
         else:
             name_file = 'Multi_f{}_t{}'.format(new_freq, self.time_wd)
-        files_s = []
+        files_s = {}
         for id_, dtb in enumerate(self.list_datasets):
-            files_s.append([])
+            files_s[dtb.name] = []
             input_dir = dtb.dir_save
-            files = glob.glob(input_dir+'*.pkl')
+            files = glob.glob(os.path.join(input_dir,'*.pkl'))
             for pkl in files:
-                with open(pkl, 'rb') as handle:
-                    data = pickle.load(handle)
-                files_s[id_].append([i for i in data.keys()])
-            self.label_generator(files_s[id_])
-            self.subject_trials(files_s[id_])
+                if os.path.split(pkl)[-1].split('_')[0] == dtb.name:
+                    files_s[dtb.name].append(pkl)
+                    #with open(pkl, 'rb') as handle:
+                    #    data = pickle.load(handle)
+                    #files_s[id_].append([i for i in data.keys()])
+            self.label_generator(files_s[dtb.name])
+            self.subject_trials(files_s[dtb.name])
         
         #Matrix Activity (row) by Subject (col)    
         self.fundamental_matrix = np.zeros((len(self.activity),len(self.subject)))
@@ -148,8 +158,8 @@ class Loso(object):
         for id_, dtb in enumerate(self.list_datasets):
             input_dir = dtb.dir_save
             dataset_name = dtb.name
-            self.data_generator(files_s[id_],dataset_name, input_dir, dtb.freq, new_freq)
-            self.add_consult_label(dtb.labels)
+            self.data_generator(files_s[dataset_name],dataset_name, input_dir, dtb.freq, new_freq)
+            #self.add_consult_label(dtb.labels)
 
         self.groups = np.array(self.groups)
         self.X = np.array(self.X)
@@ -162,18 +172,18 @@ class Loso(object):
             if check_zeros[0].shape[0] < 2: #An activity is performed just by one subject
                 invalid_rows.append(row)
 
-        if(len(invalid_rows) == 0):
-            loso = LeaveOneGroupOut()
-            tmp = loso.split(X=self.X, y=self.y, groups=self.groups)
-            folds =[]
-            for train_index, test_index in loso.split(self.X, self.y, self.groups):
-                folds.append((train_index, test_index))
+        #if(len(invalid_rows) == 0):
+        loso = LeaveOneGroupOut()
+        tmp = loso.split(X=self.X, y=self.y, groups=self.groups)
+        folds =[]
+        for train_index, test_index in loso.split(self.X, self.y, self.groups):
+            folds.append((train_index, test_index))
 
-            self.X = np.array(self.X)
-            y_names = np.array(self.y)
-            #self.y = _to_categorical(y_names, len(self.activity))
-            np.savez_compressed(dir_save_file+name_file, X=self.X, y=self.y, folds=folds)
-        else:
-            print('Problem at lines')
-            for row in invalid_rows:
-                print(row)
+        self.X = np.array(self.X)
+        y_names = np.array(self.y)
+        #self.y = _to_categorical(y_names, len(self.activity))
+        np.savez_compressed(os.path.join(dir_save_file,name_file), X=self.X, y=self.y, folds=folds)
+    
+        print('Activities performed by less than 2 subjects')
+        for row in invalid_rows:
+            print(row)
