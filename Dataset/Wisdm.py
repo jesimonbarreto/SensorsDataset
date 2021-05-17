@@ -3,10 +3,30 @@ from enum import Enum
 
 
 class SignalsWisdm(Enum):
-    acc_hand_X = 0
-    acc_hand_Y = 1 
-    acc_hand_Z = 2
+    acc_front_pants_pocket_X = 0
+    acc_front_pants_pocket_Y = 1
+    acc_front_pants_pocket_Z = 2
+
+
+actNamesWISDM = {
+    1: 'Walking',
+    2: 'Jogging',
+    3: 'Upstairs',
+    4: 'Downstairs',
+    5: 'Sitting',
+    6: 'Standing'
+}
+
+
 class Wisdm(Dataset):
+
+    def print_info(self):
+        return """
+                device: cellphone
+                frequency: 20Hz
+                positions: front pants leg pocket
+                sensors: acc
+                """
 
     def preprocess(self):
         file_name = self.dir_dataset

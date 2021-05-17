@@ -6,10 +6,12 @@ from .Datasets import Dataset
 
 from enum import Enum
 
+
 class SignalsWharf(Enum):
-    acc_hand_X = 0
-    acc_hand_Y = 1 
-    acc_hand_Z = 2
+    acc_right_wrist_X = 0
+    acc_right_wrist_Y = 1
+    acc_right_wrist_Z = 2
+
 
 actNameWHARF = {
     1:  'Brush teeth',
@@ -30,6 +32,14 @@ actNameWHARF = {
 
 
 class WHARF(Dataset):
+    def print_info(self):
+        return """
+                device: IMU
+                frequency: 32Hz
+                positions: right wrist 
+                sensors: acc
+                """
+
     def preprocess(self):
         txt_files = []
         for root, dirs, files in os.walk(self.dir_dataset):

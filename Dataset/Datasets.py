@@ -17,7 +17,7 @@ class Dataset(metaclass=ABCMeta):
         self.dir_save = dir_save
         self.freq = freq
         self.data = {}
-        #Quando tiver n_save_file trial id em data, sera salvo em disco e os data sera limpado
+        # Quando tiver n_save_file trial id em data, sera salvo em disco e os data sera limpado
         self.trials_per_file = trials_per_file
         self.n_pkl = 0
         self.labels = {}
@@ -50,7 +50,6 @@ class Dataset(metaclass=ABCMeta):
                 self.n_pkl += 1
             except:
                 print('Erro save pickle {}'.format(self.n_pkl))
-    
 
     def save_data(self, output_dir):
         try:
@@ -62,10 +61,18 @@ class Dataset(metaclass=ABCMeta):
             print('Erro save pickle {}'.format(self.n_pkl))
 
     def add_label_class(self, code, label):
-         self.labels[code] = label
+        self.labels[code] = label
 
 
-    # Função deve ser implementada, utilizar o diretorio do dataset para ler todos os dados e salvar no formato (sensorA sensorB sensorC)
+    """
+    Funções que devem ser implementadas, utilizar o diretorio do dataset para ler 
+    todos os dados e salvar no formato (sensorA sensorB sensorC)
+    """
+
     @abstractmethod
     def preprocess(self):
+        pass
+
+    @abstractmethod
+    def print_info(self):
         pass

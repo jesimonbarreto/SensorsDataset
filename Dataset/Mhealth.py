@@ -19,20 +19,42 @@ class SignalsMHEALTH(Enum):
     mag_left_ankle_X = 10
     mag_left_ankle_Y = 11
     mag_left_ankle_Z = 12
-    acc_right_arm_X = 13
-    acc_right_arm_Y = 14
-    acc_right_arm_Z = 15
-    gyr_right_arm_X = 16
-    gyr_right_arm_Y = 17
-    gyr_right_arm_Z = 18
-    mag_right_arm_X = 19
-    mag_right_arm_Y = 20
-    mag_right_arm_Z = 21
+    acc_right_lower_arm_X = 13
+    acc_right_lower_arm_Y = 14
+    acc_right_lower_arm_Z = 15
+    gyr_right_lower_arm_X = 16
+    gyr_right_lower_arm_Y = 17
+    gyr_right_lower_arm_Z = 18
+    mag_right_lower_arm_X = 19
+    mag_right_lower_arm_Y = 20
+    mag_right_lower_arm_Z = 21
 
-actNameMHEALTH = {0:'nothing',1:'Standing',2: 'Sitting', 3: 'Lying down', 4:'Walking', 5: 'Climbing stairs', 
-                    6: 'Waist bends forward', 7: 'Frontal elevation of arms', 8: 'Knees bending (crouching)',
-                    9: 'Cycling', 10: 'Jogging', 11: 'Running', 12: 'Jump front & back'}
+
+actNameMHEALTH = {
+        0: 'nothing',
+        1: 'Standing',
+        2: 'Sitting',
+        3: 'Lying down',
+        4: 'Walking',
+        5: 'Climbing stairs',
+        6: 'Waist bends forward',
+        7: 'Frontal elevation of lower_arms',
+        8: 'Knees bending (crouching)',
+        9: 'Cycling',
+        10: 'Jogging',
+        11: 'Running',
+        12: 'Jump front & back'
+}
+
+
 class MHEALTH(Dataset):
+    def print_info(self):
+        return """
+                device: IMU
+                frequency: 50Hz
+                positions: chest, left ankle and right lower arm
+                sensors:acc, gyr, mag, eletrocardiogram
+                """
 
     def action_code_to_name(self, act):
         new_act = []

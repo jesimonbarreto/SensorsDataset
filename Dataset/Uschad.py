@@ -6,10 +6,15 @@ from Dataset.Datasets import Dataset
 
 from enum import Enum
 
+
 class SignalsUSCHAD(Enum):
-    acc_hand_X = 0
-    acc_hand_Y = 1 
-    acc_hand_Z = 2
+    acc_front_right_hip_X = 1
+    acc_front_right_hip_Y = 2 
+    acc_front_right_hip_Z = 3
+    gyr_front_right_hip_X = 4
+    gyr_front_right_hip_Y = 5
+    gyr_front_right_hip_Z = 6
+
 
 actNameUSCHAD = {
     1:  'Walking Forward',
@@ -28,6 +33,14 @@ actNameUSCHAD = {
 
 
 class USCHAD(Dataset):
+    def print_info(self):
+        return """
+                device: IMU
+                frequency: 100Hz
+                positions: front-right-hip
+                sensors: acc and gyr
+                """
+
     def preprocess(self):
         mat_files = []
         for root, dirs, files in os.walk(self.dir_dataset):

@@ -7,13 +7,12 @@ from enum import Enum
 
 
 class SignalsUtdmhad1(Enum):
-    acc_hand_X = 1
-    acc_hand_Y = 2 
-    acc_hand_Z = 3
-    gyr_hand_X = 4
-    gyr_hand_Y = 5
-    gyr_hand_Z = 6
-
+    acc_right_wrist_X = 1
+    acc_right_wrist_Y = 2
+    acc_right_wrist_Z = 3
+    gyr_right_wrist_X = 4
+    gyr_right_wrist_Y = 5
+    gyr_right_wrist_Z = 6
 
 
 actNameUTDMHAD1 = {
@@ -42,6 +41,14 @@ actNameUTDMHAD1 = {
 
 
 class UTDMHAD1(Dataset):
+    def print_info(self):
+        return """
+                device: IMU
+                frequency: 50Hz
+                positions: right wrist
+                sensors: acc and gyr
+                """
+
     def preprocess(self):
         activities = np.arange(1, 22)
         pathname = os.path.join(self.dir_dataset, '*.mat')
