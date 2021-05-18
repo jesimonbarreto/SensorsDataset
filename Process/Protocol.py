@@ -25,6 +25,7 @@ class Loso(object):
         self.idx_label = 0
         self.idx_subject = 1
         self.consult_label = {}
+        self.name_act = False
 
     def add_consult_label(self, a):
         z = self.consult_label.copy()   # start with x's keys and values
@@ -106,14 +107,23 @@ class Loso(object):
 
                 if freq_data != new_freq:
                     type_interp = 'cubic'
-                    samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
+                    try:
+                        samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
+                    except:
+                        print('Sample not used: size {}, local {}'.format(len(samples),file))
                 
                 for i in range(0, len(samples)):
                     self.X.append([samples[i]])
-                    self.y.append(label_)
+                    if self.name_act:
+                        act_name = data_name+'-'+label_
+                    else:
+                        act_name = label_
+                    self.y.append(act_name)
                     self.groups.append(subject_idx_)
                     self.fundamental_matrix[label][subject_idx_] += 1
-
+    def set_name_act(self):
+        self.name_act = True
+    
     def remove_subject(code):
         pass
     def remove_action(code):
@@ -172,18 +182,21 @@ class Loso(object):
             if check_zeros[0].shape[0] < 2: #An activity is performed just by one subject
                 invalid_rows.append(row)
 
-        #if(len(invalid_rows) == 0):
-        loso = LeaveOneGroupOut()
-        tmp = loso.split(X=self.X, y=self.y, groups=self.groups)
-        folds =[]
-        for train_index, test_index in loso.split(self.X, self.y, self.groups):
-            folds.append((train_index, test_index))
+        try:
+            #if(len(invalid_rows) == 0):
+            loso = LeaveOneGroupOut()
+            tmp = loso.split(X=self.X, y=self.y, groups=self.groups)
+            folds =[]
+            for train_index, test_index in loso.split(self.X, self.y, self.groups):
+                folds.append((train_index, test_index))
 
-        self.X = np.array(self.X)
-        y_names = np.array(self.y)
-        #self.y = _to_categorical(y_names, len(self.activity))
-        np.savez_compressed(os.path.join(dir_save_file,name_file), X=self.X, y=self.y, folds=folds)
-    
-        print('Activities performed by less than 2 subjects')
-        for row in invalid_rows:
-            print(row)
+            self.X = np.array(self.X)
+            y_names = np.array(self.y)
+            #self.y = _to_categorical(y_names, len(self.activity))
+            np.savez_compressed(os.path.join(dir_save_file,name_file), X=self.X, y=self.y, folds=folds)
+        
+            print('Activities performed by less than 2 subjects')
+            for row in invalid_rows:
+                print(row)
+        except:
+            print("[ERRO] Divisão em protocolo LOSO falhou. Verifique o número de classes do dataset!")

@@ -37,14 +37,14 @@ if __name__ == "__main__":
     mh = MHEALTH('Mhealth', file_mh, dir_datasets, freq = 100, trials_per_file = 10000)
 
     #Define signals of each dataset
-    sig_w = [sw.acc_hand_X, sw.acc_hand_Y, sw.acc_hand_Z] 
-    w.set_signals_use(sig_w)
+    #sig_w = [sw.acc_front_pants_pocket_X, sw.acc_front_pants_pocket_Y, sw.acc_front_pants_pocket_Z] 
+    #w.set_signals_use(sig_w)
 
-    sig_utd = [su.acc_hand_X, su.acc_hand_Y, su.acc_hand_Z]
-    utd.set_signals_use(sig_utd)
+    #sig_utd = [su.acc_hand_X, su.acc_hand_Y, su.acc_hand_Z]
+    #utd.set_signals_use(sig_utd)
 
-    sig_pm = [sp.acc1_hand_X, sp.acc1_hand_Y, sp.acc1_hand_Z]
-    p2.set_signals_use(sig_pm)
+    #sig_pm = [sp.acc1_hand_X, sp.acc1_hand_Y, sp.acc1_hand_Z]
+    #p2.set_signals_use(sig_pm)
     
     sig_m = [sm.acc_chest_X, sm.acc_chest_Y, sm.acc_chest_Z]
     mh.set_signals_use(sig_m)
@@ -57,9 +57,11 @@ if __name__ == "__main__":
     
     #Creating Loso evaluate generating
     generate_ev = Loso(datasets, overlapping = 0.0, time_wd=5)
+    #Save name of dataset on y
+    Loso.set_name_act()
     #function to save information e data
     #files = glob.glob(dir_datasets+'*.pkl')
-    generate_ev.simple_generate(dir_save_file, new_freq = 100)
+    generate_ev.simple_generate(dir_save_file, new_freq = 20)
     
 
 
