@@ -10,40 +10,28 @@ from enum import Enum
 
 
 class SignalsCOOK(Enum):
-    acc_left_hip_X = 0
-    acc_left_hip_Y = 1
-    acc_left_hip_Z = 2
-    acc_left_wrist_X = 3
-    acc_left_wrist_Y = 4
-    acc_left_wrist_Z = 5
-    acc_right_arm_X = 6
-    acc_right_arm_Y = 7
-    acc_right_arm_Z = 8
-    acc_right_wirist_X = 9
-    acc_right_wirist_Y = 10
-    acc_right_wirist_Z = 11
-    
+    sensor_X = 0
+    sensor_Y = 1
+    sensor_Z = 2
 
 
 actNameCOOK = {
-    1:  'Sandwich',
-    2:  'Fruit salad',
-    3:  'Cereal'
+    1:  'Activity 1',
+    2:  'Activity 2',
+    3:  'Activity 3'
 }
 
 class Cook2020(Dataset):
     # https://abc-research.github.io/cook2020/
     def print_info(self):
         return """
-                device: smartphones,smartwatches
-                frequency: Not defined
-                positions:  smartphones (right arm and left hip), smartwatches (both wrists)
-                sensors: Acelerômetro
+                device: 
+                frequency: 
+                positions: 
+                sensors: 
                 """
 
-    def preprocess(self, sensor_list =  ['left_hip' ,'left_wrist' ,'right_arm' ,'right_wrist'],min_data_count = 100):
-		#this can be changed
-	    number_of_samples = 500
+    def preprocess(self, sensor_list =  ['left_hip' ,'left_wrist' ,'right_arm' ,'right_wrist']):
         def parse_IMU(parent_dir, sub_dirs, startTime, endTime, file_name, window_length):
             data = []
             data_count = 0
@@ -79,12 +67,12 @@ class Cook2020(Dataset):
         # merge train and test first!
 
 
-		zip_train = zipfile.ZipFile(os.path.join(self.dir_dataset,'train.zip'))
-		zip_train.extractall(self.dir_dataset)
-		zip_test = zipfile.ZipFile(os.path.join(self.dir_dataset,'test.zip'))
-		zip_test.extractall(self.dir_dataset)
-		zip_train.close()
-		zip_test.close()
+#		zip_train = zipfile.ZipFile(os.path.join(self.dir_dataset,'train.zip'))
+#		zip_train.extractall(self.dir_dataset)
+#		zip_test = zipfile.ZipFile(os.path.join(self.dir_dataset,'test.zip'))
+#		zip_test.extractall(self.dir_dataset)
+#		zip_train.close()
+#		zip_test.close()
 
         #get The labels:
         # read the labels
@@ -100,9 +88,10 @@ class Cook2020(Dataset):
         labels = pd.concat([trainLabels, testLabels], axis=0)
         labels = labels.set_index('idx')
 
-        
+        min_data_count = 100
         sub_dirs = sensor_list
 
+        number_of_samples = 500
 
         trial_id_ = dict()
         trial_id_['1'] = 0
