@@ -9,15 +9,37 @@ from enum import Enum
 
 
 class SignalsNonSense(Enum):
-    sensor_X = 0
-    sensor_Y = 1
-    sensor_Z = 2
+    acc_foot_X = 0
+    acc_foot_Y = 1
+    acc_foot_Z = 2
+    acc_wrist_X = 3
+    acc_wrist_Y = 4
+    acc_wrist_Z = 5
+    gyr_wrist_X = 6
+    gyr_wrist_Y = 7
+    gyr_wrist_Z = 8
 
 
 actNameNonSense = {
-    1:  'Activity 1',
-    2:  'Activity 2',
-    3:  'Activity 3'
+    1:  'Brushing',
+    2:  'Washing hand',
+    3:  'Slicing',
+	4:  'Peeling',
+	5:  'Upstairs',
+	6:  'Downstairs',
+	7:  'Mixing',
+	8:  'Wiping',
+	9:  'Sweeping floor',
+	10: 'Turning shoulder',
+	11: 'Turning wrist',
+	12: 'Turning knee',
+	13: 'Turning haunch',
+	14: 'Turning ankle',
+	15: 'Walking',
+	16: 'Kicking',
+	17: 'Running',
+	18: 'Cycling',
+	19: 'Null'
 }
 
 
@@ -27,9 +49,9 @@ class NonSense(Dataset):
     def print_info(self):
         return """
                 device: Samsung G2 (smartwatch) and WAX3 sensor inside a shoe
-                frequency:
-                positions:
-                sensors:
+                frequency: 50 Hz
+                positions: Wrist (left or right) and foot
+                sensors: Acelerometer and Gyr on the wrist and acelerometer on the foot
                 """
 
     def preprocess(self):
