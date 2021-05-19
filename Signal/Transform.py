@@ -17,6 +17,9 @@ def sampling_rate(data, rate_reduc):
 def interpolate_sensors(samples, type_interp, n_samples, plot=False):
     samples = np.array(samples)
     shape = samples.shape
+    if len(shape) > 3:
+        samples = np.squeeze(samples)
+        shape = samples.shape
     new_samples = []
     for smp in samples:
         s = []
