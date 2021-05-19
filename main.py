@@ -11,6 +11,9 @@ from Dataset.Mhealth import SignalsMHEALTH as sm
 from Dataset.Pamap2 import PAMAP2
 from Dataset.Pamap2 import SignalsPAMAP2 as sp
 from Process.Manager import preprocess_datasets
+from Dataset.Datasets import Wisdm
+from Dataset.cook import cook2020
+from Dataset.Nonsense19 import NonSense
 from Process.Protocol import Loso
 
 
@@ -22,12 +25,14 @@ if __name__ == "__main__":
         dir_datasets = sys.argv[2]
         dir_save_file = sys.argv[3]
     else:
-        file_wisdm = '/home/jesimon/Documents/Project_sensors_dataset/wisdm/debug.txt'
-        dir_datasets = '/home/jesimon/Documents/Project_sensors_dataset/dataset_preprocess/'
-        dir_save_file = '/home/jesimon/Documents/Project_sensors_dataset/dataset_generated/'
-        file_utd1 = '/home/jesimon/Documents/others/datasets/Inertial/'
-        file_pm = '/home/jesimon/Documents/others/datasets/PAMAP2_Dataset/Optional/'
-        file_mh = '/home/jesimon/Documents/others/datasets/MHEALTHDATASET/'
+        #file_wisdm = '/home/jesimon/Documents/Project_sensors_dataset/wisdm/debug.txt'
+        #dir_datasets = '/home/jesimon/Documents/Project_sensors_dataset/dataset_preprocess/'
+        #dir_save_file = '/home/jesimon/Documents/Project_sensors_dataset/'
+        file ='C:\\Users\\gcram\\Documents\\Smart Sense\\NewDatasetPool\\cookRaw\\'
+        dir_datasets = 'C:\\Users\\gcram\\Documents\\Smart Sense\\NewDatasetPool\\cookRaw\\'
+        dir_save_file = 'C:\\Users\\gcram\\Documents\\Smart Sense\\NewDatasetPool\\cookRaw\\testOutput\\'
+	    
+        
     
     #Creating datasets
     #name, dir_dataset, dir_save, freq = 100, trial_per_file=100000
@@ -37,7 +42,7 @@ if __name__ == "__main__":
     mh = MHEALTH('Mhealth', file_mh, dir_datasets, freq = 100, trials_per_file = 10000)
 
     #Define signals of each dataset
-    #sig_w = [sw.acc_front_pants_pocket_X, sw.acc_front_pants_pocket_Y, sw.acc_front_pants_pocket_Z] 
+    #sig_w = [sw.acc_front_pants_pocket_X, sw.acc_front_pants_pocket_Y, sw.acc_front_pants_pocket_Z]
     #w.set_signals_use(sig_w)
 
     #sig_utd = [su.acc_hand_X, su.acc_hand_Y, su.acc_hand_Z]

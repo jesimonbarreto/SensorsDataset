@@ -2,6 +2,10 @@ import pickle
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
+import pandas as pd
+from scipy.io import loadmat
+import random
+import csv
 
 
 #Class name pattern - use gerund with the first capital letter
@@ -65,7 +69,7 @@ class Dataset(metaclass=ABCMeta):
 
 
     """
-    Funções que devem ser implementadas, utilizar o diretorio do dataset para ler 
+    Funções que devem ser implementadas, utilizar o diretorio do dataset para ler
     todos os dados e salvar no formato (sensorA sensorB sensorC)
     """
 
