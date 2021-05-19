@@ -3,7 +3,7 @@ import pandas as pd                 # for data reading and writing
 import math
 import scipy.stats as st
 from scipy.interpolate import interp1d
-from fastpip import pip
+#from fastpip import pip
 import matplotlib.pyplot as plt
 
 

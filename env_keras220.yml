@@ -1,4 +1,4 @@
-name: pix_hell2
+name: frankdataset
 channels:
 - defaults
 - conda-forge
