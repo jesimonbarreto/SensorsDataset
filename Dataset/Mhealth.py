@@ -88,7 +88,7 @@ class MHEALTH(Dataset):
                     if len(self.signals_use)>0:
                         data = []
                         for d in self.signals_use:
-                            data.append(split[d.value])
+                            data.append(float(split[d.value]))
                         dc = np.column_stack(data)
                     else:
                         dc = split[0:columns]
