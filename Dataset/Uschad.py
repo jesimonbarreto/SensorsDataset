@@ -1,10 +1,8 @@
 import os
-
 from scipy.io import loadmat
-
 from Dataset.Datasets import Dataset
-
 from enum import Enum
+import numpy as np
 
 
 class SignalsUSCHAD(Enum):
@@ -52,8 +50,12 @@ class USCHAD(Dataset):
             act = mat_file['activity'][0]
             subject = int(mat_file['subject'][0])
             trial_id = int(mat_file['trial'][0])
-            trial = mat_file['sensor_readings'].astype('float64')
+            trial_data = mat_file['sensor_readings'].astype('float64')
 
+            data = []
+            for d in self.signals_use:
+                data.append(trial_data[:, d.value])
+            trial = np.column_stack(data).astype('float64')
             self.add_info_data(act, subject, trial_id, trial, self.dir_save)
             #print('file_name:[{}] s:[{}]'.format(filepath, subject))
 
