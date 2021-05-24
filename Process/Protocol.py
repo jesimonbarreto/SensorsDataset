@@ -205,8 +205,9 @@ class Loso(object):
 
 
 class MetaLearning(object):
-    def __init__(self, list_datasets, source_tasks, target_tasks, exp_name, overlapping=0.0, time_wd=5):
+    def __init__(self, list_datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=0.0, time_wd=5):
         self.list_datasets = list_datasets
+        self.dir_datasets = dir_datasets
         self.time_wd = time_wd
         self.activity = {}
         self.label_idx = -1
@@ -247,72 +248,60 @@ class MetaLearning(object):
 
         return output
 
-    def label_generator(self, files):
-        # self.label_idx = -1
+    def subject_trials_and_label_generator(self, files):
         for pkl in files:
             with open(pkl, 'rb') as handle:
                 data = pickle.load(handle)
-            fl = [i for i in data.keys()]
-            for file in fl:
-                label = file.split(self.separator)[self.idx_label]  # [1:]#USCHAD
-                if label not in self.activity.keys():
-                    self.label_idx += 1
-                    self.activity[label] = self.label_idx
+                fl = [i for i in data.keys()]
+                for file in fl:
+                    idx = file.split(self.separator)[self.idx_subject]
+                    if idx not in self.subject.keys():
+                        self.subject_idx = self.subject_idx + 1
+                        self.subject[idx] = self.subject_idx
 
-        return self.activity
+                    label = file.split(self.separator)[self.idx_label]
+                    if label not in self.activity.keys():
+                        self.label_idx += 1
+                        self.activity[label] = self.label_idx
 
-    def subject_trials(self, files):
-        # subject = {}
-        # subject_idx = -1
-        for pkl in files:
-            with open(pkl, 'rb') as handle:
-                data = pickle.load(handle)
-            fl = [i for i in data.keys()]
-            for file in fl:
-                idx = file.split(self.separator)[self.idx_subject]  # [-2:]
-                # idx = file.split("_")[idx_subject][7:] #USCHAD
-                if idx not in self.subject.keys():
-                    self.subject_idx = self.subject_idx + 1
-                    self.subject[idx] = self.subject_idx
-
-        return self.subject
+        return self.subject, self.activity
 
     def data_generator(self, files, data_name, dir_input_file, freq_data, new_freq):
 
-        print("\nAdding to new dataset samples from {}".format(data_name), flush=True)
+        print("\nAdding samples from {}".format(data_name), flush=True)
         for id_, fl in enumerate(tqdm(files)):
             pkl = os.path.join(dir_input_file, data_name + '_' + str(id_) + '.pkl')
             with open(pkl, 'rb') as handle:
                 data = pickle.load(handle)
-            fl = [i for i in data]
-            for file in fl:
-                label_ = file.split(self.separator)[self.idx_label]
-                if len(self.consult_label) > 0:
-                    label_ = self.consult_label[label_]
-                subject_ = file.split("_")[self.idx_subject]
-                label = self.activity[label_]
-                subject_idx_ = self.subject[subject_]
+                fl = [i for i in data]
+                for file in fl:
+                    label_ = file.split(self.separator)[self.idx_label]
+                    if len(self.consult_label) > 0:
+                        label_ = self.consult_label[label_]
+                    subject_ = file.split("_")[self.idx_subject]
+                    label = self.activity[label_]
+                    subject_idx_ = self.subject[subject_]
 
-                trial = data[file]
+                    trial = np.squeeze(np.array(data[file]))
 
-                samples = self.sw(trial=trial, freq=freq_data)
+                    samples = self.sw(trial=trial, freq=freq_data)
 
-                if freq_data != new_freq:
-                    type_interp = 'cubic'
-                    try:
-                        samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
-                    except:
-                        print('Sample not used: size {}, local {}'.format(len(samples), file))
+                    if freq_data != new_freq:
+                        type_interp = 'cubic'
+                        try:
+                            samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
+                        except:
+                            print('Sample not used: size {}, local {}'.format(len(samples), file))
 
-                for i in range(0, len(samples)):
-                    self.X.append(np.array([samples[i]]))
-                    if self.name_act:
-                        act_name = data_name + '-' + label_
-                    else:
-                        act_name = label_
-                    self.y.append(act_name)
-                    self.groups.append(subject_idx_)
-                    self.fundamental_matrix[label][subject_idx_] += 1
+                    for i in range(0, len(samples)):
+                        self.X.append(np.array([samples[i]]))
+                        if self.name_act:
+                            act_name = data_name + '-' + label_
+                        else:
+                            act_name = label_
+                        self.y.append(act_name)
+                        self.groups.append(subject_idx_)
+                        self.fundamental_matrix[label][subject_idx_] += 1
         print("Done")
 
     def set_name_act(self):
@@ -386,21 +375,20 @@ class MetaLearning(object):
         if len(self.list_datasets) == 1:
             name_file = '{}_f{}_t{}'.format(self.list_datasets[0].name, new_freq, self.time_wd)
         else:
-            name_file = 'Multi_exp_{}_f{}_t{}'.format(self.exp_name, new_freq, self.time_wd)
-        files_s = {}
+
+            name_file = 'Multi_f{}_t{}_{}'.format(new_freq, self.time_wd, self.exp_name)
+
         print("Reading pkl files...", flush=True)
-        for id_, dtb in enumerate(tqdm(self.list_datasets)):
+
+        files_s = {}
+        for id_, dtb in enumerate(self.list_datasets):
             files_s[dtb.name] = []
             input_dir = dtb.dir_save
             files = glob.glob(os.path.join(input_dir, '*.pkl'))
             for pkl in files:
                 if os.path.split(pkl)[-1].split('_')[0] == dtb.name:
                     files_s[dtb.name].append(pkl)
-                    # with open(pkl, 'rb') as handle:
-                    #    data = pickle.load(handle)
-                    # files_s[id_].append([i for i in data.keys()])
-            self.label_generator(files_s[dtb.name])
-            self.subject_trials(files_s[dtb.name])
+            self.subject_trials_and_label_generator(files_s[dtb.name])
         print("Done.", flush=True)
 
         # Matrix Activity (row) by Subject (col)
@@ -423,8 +411,7 @@ class MetaLearning(object):
             if check_zeros[0].shape[0] < 2:  # An activity is  performed just by one subject
                 invalid_rows.append(row)
 
-        #try:
-            # Meta learning train and test splits for each few-shot scenario
+        # Meta learning train and test splits for each few-shot scenario
 
         X_train, y_train, X_val, y_val, X_test, y_test = self.split_data()
 
