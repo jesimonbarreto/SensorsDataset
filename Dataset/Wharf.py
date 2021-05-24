@@ -59,9 +59,9 @@ class WHARF(Dataset):
                 data = []
                 for d in self.signals_use:
                     data.append(trial[:,d.value])
-                trial = np.column_stack(data)
+                trial = np.column_stack(data).astype('float64')
                 self.add_info_data(act, subject, trial_id, trial, self.dir_save)
-                print('file_name:[{}] s:[{}]'.format(filepath, subject))
+                #print('file_name:[{}] s:[{}]'.format(filepath, subject))
 
         self.save_data(self.dir_save)
 

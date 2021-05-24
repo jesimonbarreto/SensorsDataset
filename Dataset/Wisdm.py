@@ -60,7 +60,7 @@ class Wisdm(Dataset):
 
                 #The next line will be a novel trial
                 else:
-                    print('{} {} {}'.format(act, subject, trial_id))
+                    #print('{} {} {}'.format(act, subject, trial_id))
                     self.add_info_data(act, subject, trial_id, trial, output_dir)
                     #self.save_file(act, subject, trial_id, trial, self.dir_save)
                     trial_id = trial_id + 1
