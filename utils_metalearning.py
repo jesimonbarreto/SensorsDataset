@@ -1,3 +1,5 @@
+import sys
+
 actNameMHEALTH = [
     'Standing',
     'Sitting',
@@ -88,6 +90,40 @@ def all_activities(dataset_name):
     dataset_act = globals()['actName' + dataset_name.upper()]
     for act in dataset_act:
         output.append(dataset_name + '-' + act.lower())
+    return output
+
+
+def target_task_top4(dataset_name):
+    """
+       Return a list with the names of the top4 most common activities
+       walking, upstairs, sitting, standing
+       from a given dataset using the format "dataset-activity"
+
+    """
+    output = []
+    if dataset_name.upper() == 'MHEALTH':
+        acts = ['Walking', 'Climbing stairs', 'Sitting', 'Standing']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    elif dataset_name.upper() == 'PAMAP2':
+        acts =['Walking', 'ascending stairs', 'Sitting', 'Standing']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    elif dataset_name.upper() == 'USCHAD':
+        acts = ['Walking Forward', 'Walking Upstairs', 'Sitting', 'Standing']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    elif dataset_name.upper() == 'WHARF':
+        acts = ['Walk', 'Climb stairs', 'Sit down chair', 'Stand up chair']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    elif dataset_name.upper() == 'WISDM':
+        acts = ['Walking', 'Upstairs', 'Sitting', 'Standing']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    else:
+        sys.exit("O dataset {} não é aceito".format(dataset_name))
+
     return output
 
 
