@@ -2,11 +2,12 @@
 #SBATCH -N 1
 #SBATCH --qos=cpu
 #SBATCH -o ./../2-residuals/slurm/%J.out
-#SBATCH --mem=15GB 
+#SBATCH --mem=100GB 
 
-conda env create env_keras220.yml 
-
+#conda remove --name frankdataset --all 
+conda env create -f environment.yml
 source activate frankdataset 
+conda info --envs 
 
 
 srun python ./experimento_1.py

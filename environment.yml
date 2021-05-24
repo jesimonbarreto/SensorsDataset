@@ -1,0 +1,23 @@
+name: frankdataset
+channels:
+- defaults
+- conda-forge
+dependencies:
+- python=3.6
+- numpy
+- scipy
+- scikit-learn
+- seaborn
+- h5py
+- pywavelets
+- python-graphviz
+- pip
+- pip:
+  - matplotlib==3.2.0
+  - transforms3d
+  - wheel
+  - pandas
+  - pydot
+  - python-fastpip
+  - tqdm
+  - pydevd_pycharm

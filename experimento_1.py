@@ -1,3 +1,5 @@
+import shutil
+
 from Dataset.Wisdm import Wisdm, SignalsWisdm as sw
 from Dataset.Mhealth import MHEALTH, SignalsMHEALTH as sm
 from Dataset.Wharf import WHARF, SignalsWharf as swh
@@ -8,59 +10,100 @@ from Process.Manager import preprocess_datasets
 from Process.Protocol import MetaLearning
 import os
 
+from utils_metalearning import all_activities, target_task_top4
+from tqdm import tqdm
+import time
 
-if __name__ == "__main__":
+import pydevd_pycharm
+pydevd_pycharm.settrace('172.22.100.2', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
+
+
+def instanciate_dataset(datasets_list, dir_datasets):
 
     file_wisdm = '/storage/datasets/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
-    dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
-    dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_generated/'
     file_pm = '/storage/datasets/sensors/originals/PAMAP2/Optional/'
     file_mh = '/storage/datasets/sensors/originals/MHEALTHDATASET/'
     file_wharf = '/storage/datasets/sensors/originals/WHARF'
     file_uschad = '/storage/datasets/sensors/originals/USC-HAD'
 
-    os.makedirs(dir_datasets, exist_ok=True)
-    os.makedirs(dir_save_file, exist_ok=True)
-
+    datasets = []
     # Creating datasets
     # name, dir_dataset, dir_save, freq = 100, trial_per_file=100000
     wisdm = Wisdm('wisdm', file_wisdm, dir_datasets, freq=20, trials_per_file=100000)
+    if 'wisdm' in datasets_list:
+        datasets.append(wisdm)
+        sig_wisdm = [sw.acc_front_pants_pocket_X, sw.acc_front_pants_pocket_Y, sw.acc_front_pants_pocket_Z]
+        wisdm.set_signals_use(sig_wisdm)
+
     wharf = WHARF('wharf', file_wharf, dir_datasets, freq=32, trials_per_file=100000)
+    if 'wharf' in datasets_list:
+        datasets.append(wharf)
+        sig_wharf = [swh.acc_right_wrist_X, swh.acc_right_wrist_Y, swh.acc_right_wrist_Z]
+        wharf.set_signals_use(sig_wharf)
+
     p2 = PAMAP2('pamap2', file_pm, dir_datasets, freq=50, trials_per_file=100000)
+    if 'pamap2' in datasets_list:
+        datasets.append(p2)
+        sig_pm = [sp.acc1_dominant_wrist_X, sp.acc1_dominant_wrist_Y, sp.acc1_dominant_wrist_Z]
+        p2.set_signals_use(sig_pm)
+
     mh = MHEALTH('mhealth', file_mh, dir_datasets, freq=100, trials_per_file=100000)
+    if 'mhealth' in datasets_list:
+        datasets.append(mh)
+        sig_m = [sm.acc_right_lower_arm_X, sm.acc_right_lower_arm_Y, sm.acc_right_lower_arm_Z]
+        mh.set_signals_use(sig_m)
+
     usc = USCHAD('uschad', file_uschad, dir_datasets, freq=100, trials_per_file=100000)
+    if 'uschad' in datasets_list:
+        datasets.append(usc)
+        sig_usc = [susc.acc_front_right_hip_X, susc.acc_front_right_hip_Y, susc.acc_front_right_hip_Z]
+        usc.set_signals_use(sig_usc)
 
-    # Define signals of each dataset
-    sig_wisdm = [sw.acc_front_pants_pocket_X, sw.acc_front_pants_pocket_Y, sw.acc_front_pants_pocket_Z]
-    wisdm.set_signals_use(sig_wisdm)
+    return datasets
 
-    sig_wharf = [swh.acc_right_wrist_X, swh.acc_right_wrist_Y, swh.acc_right_wrist_Z]
-    wharf.set_signals_use(sig_wharf)
 
-    sig_pm = [sp.acc1_dominant_wrist_X, sp.acc1_dominant_wrist_Y, sp.acc1_dominant_wrist_Z]
-    p2.set_signals_use(sig_pm)
-
-    sig_m = [sm.acc_right_lower_arm_X, sm.acc_right_lower_arm_Y, sm.acc_right_lower_arm_Z]
-    mh.set_signals_use(sig_m)
-
-    sig_usc = [susc.acc_front_right_hip_X, susc.acc_front_right_hip_Y, susc.acc_front_right_hip_Z]
-    usc.set_signals_use(sig_usc)
-
-    # list datasets
-    datasets = [wisdm, wharf, p2, mh, usc]
-
+def process_datasets(datasets):
     # preprocessing
+    print("\nDatasets preprocessing...\n", flush=True)
     preprocess_datasets(datasets)
+    print("\nDone.\n", flush=True)
 
-    train_labels = ['UTD2-jogging', 'UTD2-walking', 'UTD2-sit to stand']
-    test_labels = ['UTD2-squat']
+    return datasets
 
+
+def create_dataset(datasets, dir_save_file, source_tasks, target_tasks, exp_name):
     # Creating Loso evaluate generating
-    generate_ev = MetaLearning(datasets, train_labels, test_labels, overlapping=0.5, time_wd=5)
+    generate_ev = MetaLearning(datasets, source_tasks, target_tasks, exp_name, overlapping=0.5, time_wd=5)
     generate_ev.set_name_act()
     # function to save information e data
     # files = glob.glob(dir_datasets+'*.pkl')
+    print("\n--Npz generating--\n", flush=True)
     generate_ev.simple_generate(dir_save_file, new_freq=20)
+    print("\nNpz Done.\n", flush=True)
 
 
+if __name__ == "__main__":
+    dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
+    dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_generated/'
 
+    #datasets_list = ['wisdm', 'wharf', 'pamap2', 'mhealth', 'uschad']
+    # debug porpouses
+    datasets_list = ['wharf', 'mhealth']
+
+    datasets = instanciate_dataset(datasets_list, dir_datasets)
+
+    #process_datasets(datasets)
+    
+    for target_dataset in tqdm(datasets_list):
+        print("Target dataset: {}".format(target_dataset), flush=True)
+        exp_name = "1_" + target_dataset
+        start = time.time()
+        target_tasks = target_task_top4(target_dataset)
+
+        source_dataset = [d for d in datasets_list if d not in target_dataset]
+        source_tasks = []
+        for dt in source_dataset:
+            source_tasks.extend(all_activities(dt))
+        create_dataset(datasets, dir_save_file, source_tasks, target_tasks, exp_name)
+        end = time.time()
+        print("Time passed target dataset {} = {}".format(target_dataset, start-end), flush=True)
