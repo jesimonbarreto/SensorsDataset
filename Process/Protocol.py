@@ -113,7 +113,7 @@ class Loso(object):
                         print('Sample not used: size {}, local {}'.format(len(samples),file))
                 
                 for i in range(0, len(samples)):
-                    self.X.append([samples[i]])
+                    self.X.append(np.array([samples[i]]))
                     if self.name_act:
                         act_name = data_name+'-'+label_
                     else:
