@@ -6,6 +6,7 @@ import sys
 # insert at 1, 0 is the script path (or '' in REPL)
 sys.path.insert(1, '../')
 from Signal.Transform import interpolate_sensors
+from tqdm import tqdm
 
 
 class Loso(object):
@@ -204,7 +205,7 @@ class Loso(object):
 
 
 class MetaLearning(object):
-    def __init__(self, list_datasets, train_labels, test_labels, overlapping=0.0, time_wd=5):
+    def __init__(self, list_datasets, source_tasks, target_tasks, exp_name, overlapping=0.0, time_wd=5):
         self.list_datasets = list_datasets
         self.time_wd = time_wd
         self.activity = {}
@@ -221,8 +222,9 @@ class MetaLearning(object):
         self.idx_subject = 1
         self.consult_label = {}
         self.name_act = False
-        self.train_labels = train_labels
-        self.test_labels = test_labels
+        self.source_tasks = source_tasks
+        self.target_tasks = target_tasks
+        self.exp_name = exp_name
 
     def add_consult_label(self, a):
         z = self.consult_label.copy()  # start with x's keys and values
@@ -277,7 +279,8 @@ class MetaLearning(object):
 
     def data_generator(self, files, data_name, dir_input_file, freq_data, new_freq):
 
-        for id_, fl in enumerate(files):
+        print("\nAdding to new dataset samples from {}".format(data_name), flush=True)
+        for id_, fl in enumerate(tqdm(files)):
             pkl = os.path.join(dir_input_file, data_name + '_' + str(id_) + '.pkl')
             with open(pkl, 'rb') as handle:
                 data = pickle.load(handle)
@@ -302,7 +305,7 @@ class MetaLearning(object):
                         print('Sample not used: size {}, local {}'.format(len(samples), file))
 
                 for i in range(0, len(samples)):
-                    self.X.append([samples[i]])
+                    self.X.append(samples[i])
                     if self.name_act:
                         act_name = data_name + '-' + label_
                     else:
@@ -310,6 +313,7 @@ class MetaLearning(object):
                     self.y.append(act_name)
                     self.groups.append(subject_idx_)
                     self.fundamental_matrix[label][subject_idx_] += 1
+        print("Done")
 
     def set_name_act(self):
         self.name_act = True
@@ -338,17 +342,16 @@ class MetaLearning(object):
         _X_train, X_test, _y_train, y_test = [], [], [], []
 
         for sample, label in zip(self.X, self.y):
-            if label in self.train_labels:
+            if label in self.source_tasks:
                 _X_train.append(sample)
                 _y_train.append(label)
-            elif label in self.test_labels:
+            elif label in self.target_tasks:
                 X_test.append(sample)
                 y_test.append(label)
 
-        X_train, X_val, y_train, y_val = train_test_split(_X_train, _y_train, test_size=0.2, random_state=42)
+        X_train, X_val, y_train, y_val = train_test_split(np.array(_X_train), _y_train, test_size=0.2, random_state=42)
 
-        return np.array(X_train), np.array(X_val), np.array(y_train), np.array(y_val), np.array(X_test), np.array(
-            y_test)
+        return X_train, np.array(y_train), X_val, np.array(y_val), np.array(X_test), np.array(y_test)
 
     def get_n_random_sample_per_class(self, indexs, y, n_shots):
         classes = np.unique(y)
@@ -383,9 +386,10 @@ class MetaLearning(object):
         if len(self.list_datasets) == 1:
             name_file = '{}_f{}_t{}'.format(self.list_datasets[0].name, new_freq, self.time_wd)
         else:
-            name_file = 'Multi_f{}_t{}'.format(new_freq, self.time_wd)
+            name_file = 'Multi_exp_{}_f{}_t{}'.format(self.exp_name, new_freq, self.time_wd)
         files_s = {}
-        for id_, dtb in enumerate(self.list_datasets):
+        print("Reading pkl files...", flush=True)
+        for id_, dtb in enumerate(tqdm(self.list_datasets)):
             files_s[dtb.name] = []
             input_dir = dtb.dir_save
             files = glob.glob(os.path.join(input_dir, '*.pkl'))
@@ -397,6 +401,7 @@ class MetaLearning(object):
                     # files_s[id_].append([i for i in data.keys()])
             self.label_generator(files_s[dtb.name])
             self.subject_trials(files_s[dtb.name])
+        print("Done.", flush=True)
 
         # Matrix Activity (row) by Subject (col)
         self.fundamental_matrix = np.zeros((len(self.activity), len(self.subject)))
@@ -408,7 +413,7 @@ class MetaLearning(object):
             # self.add_consult_label(dtb.labels)
 
         self.groups = np.array(self.groups)
-        self.X = np.array(self.X)
+        self.X = np.array(self.X, dtype=float)
         self.y = np.array(self.y)
 
         invalid_rows = []
@@ -421,7 +426,7 @@ class MetaLearning(object):
         #try:
             # Meta learning train and test splits for each few-shot scenario
 
-        X_train, X_val, y_train, y_val, X_test, y_test = self.split_data()
+        X_train, y_train, X_val, y_val, X_test, y_test = self.split_data()
 
         one_shot_kfold = self.get_k_fold(X_test, y_test, 1, 5)
         five_shot_kfold = self.get_k_fold(X_test, y_test, 5, 5)
