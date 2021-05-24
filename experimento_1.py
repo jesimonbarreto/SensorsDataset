@@ -13,15 +13,12 @@ import os
 from utils_metalearning import all_activities, target_task_top4
 from tqdm import tqdm
 import time
-
-import pydevd_pycharm
-pydevd_pycharm.settrace('172.22.100.2', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
-
+import argparse
 
 def instanciate_dataset(datasets_list, dir_datasets):
 
     file_wisdm = '/storage/datasets/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
-    file_pm = '/storage/datasets/sensors/originals/PAMAP2/Optional/'
+    file_pm = '/storage/datasets/sensors/originals/PAMAP2/Protocol/'
     file_mh = '/storage/datasets/sensors/originals/MHEALTHDATASET/'
     file_wharf = '/storage/datasets/sensors/originals/WHARF'
     file_uschad = '/storage/datasets/sensors/originals/USC-HAD'
@@ -71,9 +68,9 @@ def process_datasets(datasets):
     return datasets
 
 
-def create_dataset(datasets, dir_save_file, source_tasks, target_tasks, exp_name):
+def create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name):
     # Creating Loso evaluate generating
-    generate_ev = MetaLearning(datasets, source_tasks, target_tasks, exp_name, overlapping=0.5, time_wd=5)
+    generate_ev = MetaLearning(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=0.5, time_wd=5)
     generate_ev.set_name_act()
     # function to save information e data
     # files = glob.glob(dir_datasets+'*.pkl')
@@ -83,12 +80,23 @@ def create_dataset(datasets, dir_save_file, source_tasks, target_tasks, exp_name
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--debug', required=True, type=int)
+
+    args = parser.parse_args()
+
+    if args.debug:
+        import pydevd_pycharm
+
+        pydevd_pycharm.settrace('172.22.100.2', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
+
     dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
     dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_generated/'
 
-    #datasets_list = ['wisdm', 'wharf', 'pamap2', 'mhealth', 'uschad']
+    #datasets_list = ['wisdm', 'wharf', 'mhealth', 'pamap2', 'uschad']
     # debug porpouses
-    datasets_list = ['wharf', 'mhealth']
+    datasets_list =  ['wharf', 'mhealth', 'uschad']
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
@@ -102,8 +110,11 @@ if __name__ == "__main__":
 
         source_dataset = [d for d in datasets_list if d not in target_dataset]
         source_tasks = []
+        source_names = ''
         for dt in source_dataset:
             source_tasks.extend(all_activities(dt))
-        create_dataset(datasets, dir_save_file, source_tasks, target_tasks, exp_name)
+            source_names += "_{}".format(dt)
+        exp_name = "t_[{}]_s_[{}]_exp1".format(target_dataset, source_names)
+        create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name)
         end = time.time()
-        print("Time passed target dataset {} = {}".format(target_dataset, start-end), flush=True)
+        print("Time passed target dataset {} = {}".format(target_dataset, end-start), flush=True)
