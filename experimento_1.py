@@ -94,9 +94,9 @@ if __name__ == "__main__":
     dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
     dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_generated/'
 
-    #datasets_list = ['wisdm', 'wharf', 'mhealth', 'pamap2', 'uschad']
+    datasets_list = ['wisdm', 'wharf', 'mhealth', 'pamap2', 'uschad']
     # debug porpouses
-    datasets_list =  ['wharf', 'mhealth', 'uschad']
+    #datasets_list =  ['wharf', 'mhealth', 'uschad']
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
@@ -114,7 +114,7 @@ if __name__ == "__main__":
         for dt in source_dataset:
             source_tasks.extend(all_activities(dt))
             source_names += "_{}".format(dt)
-        exp_name = "t_[{}]_s_[{}]_exp1".format(target_dataset, source_names)
+        exp_name = "4ways_target[{}]_source[{}]_exp1".format(target_dataset, source_names)
         create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name)
         end = time.time()
         print("Time passed target dataset {} = {}".format(target_dataset, end-start), flush=True)
