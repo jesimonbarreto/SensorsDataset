@@ -371,6 +371,23 @@ class MetaLearning(object):
 
         return fold
 
+    def act_with_less_than_n_samples(self, n):
+        acts = []
+        act_name, count = np.unique(self.y, return_counts=True)
+        for a, c in zip(act_name, count):
+            if c < n:
+                acts.append(a)
+        return acts
+
+    def remove_activities(self, n):
+        act_to_remove = self.act_with_less_than_n_samples(n)
+
+        newXy = [[x, y] for x, y in zip(self.X, self.y) if y not in act_to_remove]
+        newX = [x[0] for x in newXy]
+        newY = [x[1] for x in newXy]
+        self.X = newX
+        self.y = newY
+
     def simple_generate(self, dir_save_file, new_freq=20):
         if len(self.list_datasets) == 1:
             name_file = '{}_f{}_t{}'.format(self.list_datasets[0].name, new_freq, self.time_wd)
@@ -401,6 +418,10 @@ class MetaLearning(object):
             # self.add_consult_label(dtb.labels)
 
         self.groups = np.array(self.groups)
+
+        # remove activities with less than 10 samples (necessary for 5-shot meta learning)
+        self.remove_activities(50)
+
         self.X = np.array(self.X, dtype=float)
         self.y = np.array(self.y)
 
