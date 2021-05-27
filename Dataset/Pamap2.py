@@ -132,20 +132,19 @@ class PAMAP2(Dataset):
                 sample =  np.asarray(split)
                 act = sample[1]
                 if act != '0':
-
+                    data = []
+                    for d in self.signals_use:
+                        smp = float(sample[d.value])
+                        data.append(smp)
+                    sample = np.column_stack(data)
+                    #sample = np.delete(sample, remove_columns)
                     #It is the same trial
                     #lines[iterator + 1].split(' ')[1] is the next activity
                     #remove data never used
-                    sample = self.clean_data_not_used(sample)
+                    #sample = self.clean_data_not_used(sample)
                     if iterator != len(lines)-1 and lines[iterator+1].split(' ')[1] == act:
                         idx = np.where(sample == 'NaN')[0]
                         if(idx.size==0):
-                            data = []
-                            for d in self.signals_use:
-                                smp = float(sample[d.value])
-                                data.append(smp)
-                            sample = np.column_stack(data)
-                            #sample = np.delete(sample, remove_columns)
                             trial.append(sample)
                         else:#Incorrect file
                             incorrect = incorrect+1
@@ -160,7 +159,7 @@ class PAMAP2(Dataset):
                         trial = []
 
 
-                    iterator = iterator + 1
+                iterator = iterator + 1
             #print('file_name:[{}] s:[{}]'.format(file, subject))
             #print('{} incorrect lines in file {}'.format(str(incorrect), file))
         self.save_data(output_dir)

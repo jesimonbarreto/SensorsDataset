@@ -53,7 +53,7 @@ if __name__ == "__main__":
     datasets = [p2]
 
     #preprocessing
-    #preprocess_datasets(datasets)
+    preprocess_datasets(datasets)
     
     #Creating Loso evaluate generating
     generate_ev = Loso(datasets, overlapping = 0.0, time_wd=5)
