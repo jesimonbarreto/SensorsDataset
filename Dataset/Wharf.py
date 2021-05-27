@@ -18,14 +18,14 @@ actNameWHARF = {
     2:  'Climb stairs',
     3:  'Comb hair',
     4:  'Descend stairs',
-    5:  'Drinking glass',
+    5:  'Drink glass',
     6:  'Eat meat',
-    7:  'Ead soup',
-    8:  'Get up bed',
-    9:  'Lie down bed',
+    7:  'Eat soup',
+    8:  'Getup bed',
+    9:  'Liedown bed',
     10: 'Pour water',
-    11: 'Sit down chair',
-    12: 'Stand up chair',
+    11: 'Sitdown chair',
+    12: 'Standup chair',
     13: 'Walk',
     14: 'Use telephone'
 }
@@ -52,6 +52,7 @@ class WHARF(Dataset):
             with open(filepath, 'r') as f:
                 filename = filepath.split(os.sep)[-1]
                 act, subject = filename.split('-')[-2:]
+                act = act.replace("_", " ")
                 subject = subject.replace('.txt', '')
                 trial = f.read().split()
                 trial = list(map(int, trial))

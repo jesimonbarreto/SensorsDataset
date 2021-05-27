@@ -38,7 +38,7 @@ actNameMHEALTH = {
         4: 'Walking',
         5: 'Climbing stairs',
         6: 'Waist bends forward',
-        7: 'Frontal elevation of lower_arms',
+        7: 'Frontal elevation of lower arms',
         8: 'Knees bending (crouching)',
         9: 'Cycling',
         10: 'Jogging',

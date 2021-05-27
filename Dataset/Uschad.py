@@ -39,6 +39,23 @@ class USCHAD(Dataset):
                 sensors: acc and gyr
                 """
 
+    def fix_name_act(self, act):
+        if "running" in act:
+            act = act.replace("running", "run")
+        if "jumping" in act:
+            act = act.replace("jumping", "jump")
+        if "sitting" in act:
+            act = act.replace("sitting", "sit")
+        if "standing" in act:
+            act = act.replace("standing", "stand")
+        if "downstairs" in act:
+            act = act.replace("downstairs", "down")
+        if "walking" in act:
+            act = act.replace("walking", "walk")
+        if "upstairs" in act:
+            act = act.replace("upstairs", "up")
+        return act
+
     def preprocess(self):
         mat_files = []
         for root, dirs, files in os.walk(self.dir_dataset):
@@ -56,6 +73,8 @@ class USCHAD(Dataset):
             for d in self.signals_use:
                 data.append(trial_data[:, d.value])
             trial = np.column_stack(data).astype('float64')
+            act = act.replace("-", " ")
+            act = self.fix_name_act(act)
             self.add_info_data(act, subject, trial_id, trial, self.dir_save)
             #print('file_name:[{}] s:[{}]'.format(filepath, subject))
 
