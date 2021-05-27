@@ -1,4 +1,5 @@
 import pickle
+import sys
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
@@ -53,7 +54,7 @@ class Dataset(metaclass=ABCMeta):
                 self.data = {}
                 self.n_pkl += 1
             except:
-                print('Erro save pickle {}'.format(self.n_pkl))
+                sys.exit('Erro save pickle {} for {} dataset'.format(self.n_pkl, self.name))
 
     def save_data(self, output_dir):
         try:
@@ -62,7 +63,7 @@ class Dataset(metaclass=ABCMeta):
             self.data = {}
             self.n_pkl += 1
         except:
-            print('Erro save pickle {}'.format(self.n_pkl))
+            sys.exit('Erro save pickle {} for {} dataset'.format(self.n_pkl, self.name))
 
     def add_label_class(self, code, label):
         self.labels[code] = label
