@@ -1,82 +1,15 @@
 import sys
+from Dataset.Wisdm import actNameWISDM
+from Dataset.Wharf import actNameWHARF
+from Dataset.Mhealth import actNameMHEALTH
+from Dataset.Pamap2 import actNamePAMAP2
+from Dataset.Uschad import actNameUSCHAD
 
-actNameMHEALTH = [
-    'Standing',
-    'Sitting',
-    'Lying down',
-    'Walking',
-    'Climbing stairs',
-    'Waist bends forward',
-    'Frontal elevation of lower_arms',
-    'Knees bending (crouching)',
-    'Cycling',
-    'Jogging',
-    'Running',
-    'Jump front & back'
-]
-
-actNamePAMAP2 = [
-    'Lying',
-    'Sitting',
-    'Standing',
-    'Walking',
-    'Running',
-    'cycling',
-    'Nordic walking',
-    'watching TV',
-    'computer work',
-    'car driving',
-    'ascending stairs',
-    'descending stairs',
-    'vacuum cleaning',
-    'ironing',
-    'folding laundry',
-    'house cleaning',
-    'playing soccer',
-    'rope jumping'
-]
-
-actNameUSCHAD = [
-    'Walking Forward',
-    'Walking Left',
-    'Walking Right',
-    'Walking Upstairs',
-    'Walking Downstairs',
-    'Running Forward',
-    'Jumping Up',
-    'Sitting',
-    'Standing',
-    'Sleeping',
-    'Elevator Up',
-    'Elevator Down',
-]
-
-actNameWHARF = [
-    'Brush teeth',
-    'Climb stairs',
-    'Comb hair',
-    'Descend stairs',
-    'Drinking glass',
-    'Eat meat',
-    'Ead soup',
-    'Get up bed',
-    'Lie down bed',
-    'Pour water',
-    'Sit down chair',
-    'Stand up chair',
-    'Walk',
-    'Use telephone'
-]
-
-
-actNameWISDM = [
-    'Walking',
-    'Jogging',
-    'Upstairs',
-    'Downstairs',
-    'Sitting',
-    'Standing'
-]
+actNameWISDM = actNameWISDM.values()
+actNameWHARF = actNameWHARF.values()
+actNameMHEALTH = actNameMHEALTH.values()
+actNamePAMAP2 = actNamePAMAP2.values()
+actNameUSCHAD = actNameUSCHAD.values()
 
 
 def all_activities(dataset_name):
@@ -114,7 +47,7 @@ def target_task_top4(dataset_name):
         for act in acts:
             output.append(dataset_name + '-' + act.lower())
     elif dataset_name.upper() == 'WHARF':
-        acts = ['Walk', 'Climb stairs', 'Sit down chair', 'Stand up chair']
+        acts = ['Walk', 'Climb stairs', 'Sitdown chair', 'Standup chair']
         for act in acts:
             output.append(dataset_name + '-' + act.lower())
     elif dataset_name.upper() == 'WISDM':
