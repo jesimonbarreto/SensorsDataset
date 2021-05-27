@@ -26,7 +26,7 @@ if __name__ == "__main__":
         dir_datasets = '/home/jesimon/Documents/Project_sensors_dataset/dataset_preprocess/'
         dir_save_file = '/home/jesimon/Documents/Project_sensors_dataset/dataset_generated/'
         file_utd1 = '/home/jesimon/Documents/others/datasets/Inertial/'
-        file_pm = '/home/jesimon/Documents/others/datasets/PAMAP2_Dataset/Protocol/'
+        file_pm = '/home/jesimon/Documents/others/datasets/PAMAP2_Dataset/'
         file_mh = '/home/jesimon/Documents/others/datasets/MHEALTHDATASET/'
     
     #Creating datasets

@@ -115,7 +115,8 @@ class PAMAP2(Dataset):
          
 
     def preprocess(self):
-        files = glob.glob(pathname=os.path.join(self.dir_dataset,'*.dat'))#'Optional/*.dat')
+        files = glob.glob(pathname=os.path.join(self.dir_dataset,'Optional','*.dat'))#'Optional/*.dat')
+        files += glob.glob(pathname=os.path.join(self.dir_dataset,'Protocol','*.dat'))
         output_dir = self.dir_save #'../output/2'
         idx_label = 1
         subject = 0
