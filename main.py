@@ -26,7 +26,7 @@ if __name__ == "__main__":
         dir_datasets = '/home/jesimon/Documents/Project_sensors_dataset/dataset_preprocess/'
         dir_save_file = '/home/jesimon/Documents/Project_sensors_dataset/dataset_generated/'
         file_utd1 = '/home/jesimon/Documents/others/datasets/Inertial/'
-        file_pm = '/home/jesimon/Documents/others/datasets/PAMAP2_Dataset/Optional/'
+        file_pm = '/home/jesimon/Documents/others/datasets/PAMAP2_Dataset/Protocol/'
         file_mh = '/home/jesimon/Documents/others/datasets/MHEALTHDATASET/'
     
     #Creating datasets
@@ -43,17 +43,17 @@ if __name__ == "__main__":
     #sig_utd = [su.acc_hand_X, su.acc_hand_Y, su.acc_hand_Z]
     #utd.set_signals_use(sig_utd)
 
-    #sig_pm = [sp.acc1_hand_X, sp.acc1_hand_Y, sp.acc1_hand_Z]
-    #p2.set_signals_use(sig_pm)
+    sig_pm = [sp.acc1_dominant_wrist_X, sp.acc1_dominant_wrist_Y, sp.acc1_dominant_wrist_Z]
+    p2.set_signals_use(sig_pm)
     
-    sig_m = [sm.acc_chest_X, sm.acc_chest_Y, sm.acc_chest_Z]
-    mh.set_signals_use(sig_m)
+    #sig_m = [sm.acc_chest_X, sm.acc_chest_Y, sm.acc_chest_Z]
+    #mh.set_signals_use(sig_m)
     
     #list datasets
-    datasets = [mh]
+    datasets = [p2]
 
     #preprocessing
-    preprocess_datasets(datasets)
+    #preprocess_datasets(datasets)
     
     #Creating Loso evaluate generating
     generate_ev = Loso(datasets, overlapping = 0.0, time_wd=5)

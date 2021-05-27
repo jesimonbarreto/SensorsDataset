@@ -97,6 +97,23 @@ class PAMAP2(Dataset):
             new_act.append(actNamePAMAP2[int(a)])
         return new_act
 
+    def clean_data_not_used(self, sample):
+        sample[SignalsPAMAP2.heart_rate_bpm] = '0'
+        sample[SignalsPAMAP2.orientation_chest_1] = '0'
+        sample[SignalsPAMAP2.orientation_chest_2] = '0'
+        sample[SignalsPAMAP2.orientation_chest_3] = '0'
+        sample[SignalsPAMAP2.orientation_chest_4] = '0'
+        sample[SignalsPAMAP2.orientation_dominant_ankle_1] = '0'
+        sample[SignalsPAMAP2.orientation_dominant_ankle_2] = '0'
+        sample[SignalsPAMAP2.orientation_dominant_ankle_3] = '0'
+        sample[SignalsPAMAP2.orientation_dominant_ankle_4] = '0'
+        sample[SignalsPAMAP2.orientation_dominant_wrist_1] = '0'
+        sample[SignalsPAMAP2.orientation_dominant_wrist_2] = '0'
+        sample[SignalsPAMAP2.orientation_dominant_wrist_3] = '0'
+        sample[SignalsPAMAP2.orientation_dominant_wrist_4] = '0'
+        return sample
+         
+
     def preprocess(self):
         files = glob.glob(pathname=os.path.join(self.dir_dataset,'*.dat'))#'Optional/*.dat')
         output_dir = self.dir_save #'../output/2'
@@ -115,17 +132,20 @@ class PAMAP2(Dataset):
                 sample =  np.asarray(split)
                 act = sample[1]
                 if act != '0':
-                    data = []
-                    for d in self.signals_use:
-                        data.append(sample[d.value])
-                    sample = np.column_stack(data)
-                    #sample = np.delete(sample, remove_columns)
 
                     #It is the same trial
                     #lines[iterator + 1].split(' ')[1] is the next activity
+                    #remove data never used
+                    sample = self.clean_data_not_used(sample)
                     if iterator != len(lines)-1 and lines[iterator+1].split(' ')[1] == act:
                         idx = np.where(sample == 'NaN')[0]
                         if(idx.size==0):
+                            data = []
+                            for d in self.signals_use:
+                                smp = float(sample[d.value])
+                                data.append(smp)
+                            sample = np.column_stack(data)
+                            #sample = np.delete(sample, remove_columns)
                             trial.append(sample)
                         else:#Incorrect file
                             incorrect = incorrect+1

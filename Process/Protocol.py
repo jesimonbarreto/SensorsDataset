@@ -38,7 +38,7 @@ class Loso(object):
         delta = freq * self.time_wd
         output = []
 
-        sample = trial
+        sample = np.squeeze(trial)
 
         while r+delta < len(sample):
             block = sample[r:r+delta]
@@ -87,7 +87,6 @@ class Loso(object):
         return self.subject
 
     def data_generator(self, files, data_name, dir_input_file, freq_data, new_freq):
-
         for id_, fl in enumerate(files):
             pkl = os.path.join(dir_input_file, data_name+'_'+str(id_)+'.pkl')
             with open(pkl, 'rb') as handle:
@@ -102,6 +101,8 @@ class Loso(object):
                 subject_idx_ = self.subject[subject_]
                 
                 trial = data[file]
+
+
                 
                 samples = self.sw(trial = trial, freq = freq_data)
 
@@ -121,6 +122,7 @@ class Loso(object):
                     self.y.append(act_name)
                     self.groups.append(subject_idx_)
                     self.fundamental_matrix[label][subject_idx_] += 1
+
     def set_name_act(self):
         self.name_act = True
     
