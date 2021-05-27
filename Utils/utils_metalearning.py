@@ -43,7 +43,7 @@ def target_task_top4(dataset_name):
         for act in acts:
             output.append(dataset_name + '-' + act.lower())
     elif dataset_name.upper() == 'USCHAD':
-        acts = ['Walking Forward', 'Walking Upstairs', 'Sitting', 'Standing']
+        acts = ['Walk Forward', 'Walk Up', 'Sit', 'Stand']
         for act in acts:
             output.append(dataset_name + '-' + act.lower())
     elif dataset_name.upper() == 'WHARF':

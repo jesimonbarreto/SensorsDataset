@@ -10,7 +10,7 @@ from Process.Manager import preprocess_datasets
 from Process.Protocol import MetaLearning
 import os
 
-from utils_metalearning import all_activities, target_task_top4
+from Utils.utils_metalearning import all_activities, target_task_top4
 from tqdm import tqdm
 import time
 import argparse
