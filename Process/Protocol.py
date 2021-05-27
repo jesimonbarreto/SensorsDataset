@@ -269,12 +269,12 @@ class MetaLearning(object):
     def data_generator(self, files, data_name, dir_input_file, freq_data, new_freq):
 
         print("\nAdding samples from {}".format(data_name), flush=True)
-        for id_, fl in enumerate(tqdm(files)):
+        for id_, fl in enumerate(tqdm(files, position=0, desc=" pkl files", leave=False, ncols=80)):
             pkl = os.path.join(dir_input_file, data_name + '_' + str(id_) + '.pkl')
             with open(pkl, 'rb') as handle:
                 data = pickle.load(handle)
                 fl = [i for i in data]
-                for file in fl:
+                for file in tqdm(fl,  position=1, desc=" trials loop", leave=False, ncols=80):
                     label_ = file.split(self.separator)[self.idx_label]
                     if len(self.consult_label) > 0:
                         label_ = self.consult_label[label_]
@@ -286,22 +286,27 @@ class MetaLearning(object):
 
                     samples = self.sw(trial=trial, freq=freq_data)
 
-                    if freq_data != new_freq:
-                        type_interp = 'cubic'
-                        try:
-                            samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
-                        except:
-                            print('Sample not used: size {}, local {}'.format(len(samples), file))
-
-                    for i in range(0, len(samples)):
-                        self.X.append(np.array([samples[i]]))
-                        if self.name_act:
-                            act_name = data_name + '-' + label_
+                    if samples:
+                        if freq_data != new_freq:
+                            type_interp = 'cubic'
+                            try:
+                                samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
+                            except:
+                                print('[Interpolation] Sample not used: size {}, local {}'.format(len(samples), file))
                         else:
-                            act_name = label_
-                        self.y.append(act_name)
-                        self.groups.append(subject_idx_)
-                        self.fundamental_matrix[label][subject_idx_] += 1
+                            samples = np.transpose(np.array(samples),(0, 2, 1))
+
+                        for i in tqdm(range(0, len(samples)), position=2, desc=" samples loop", leave=False, ncols=80):
+                            self.X.append(np.array([samples[i]]))
+                            if self.name_act:
+                                act_name = data_name + '-' + label_
+                            else:
+                                act_name = label_
+                            self.y.append(act_name)
+                            self.groups.append(subject_idx_)
+                            self.fundamental_matrix[label][subject_idx_] += 1
+                    #else:
+                    #    print('[Trial crop] Sample not used: size {}, local {}'.format(len(samples), file))
         print("Done")
 
     def set_name_act(self):
@@ -373,20 +378,31 @@ class MetaLearning(object):
 
     def act_with_less_than_n_samples(self, n):
         acts = []
+        counts = []
         act_name, count = np.unique(self.y, return_counts=True)
         for a, c in zip(act_name, count):
-            if c < n:
+            if c <= n:
                 acts.append(a)
-        return acts
+                counts.append(c)
+
+        return acts, counts
 
     def remove_activities(self, n):
-        act_to_remove = self.act_with_less_than_n_samples(n)
+        act_to_remove, counts = self.act_with_less_than_n_samples(n)
 
         newXy = [[x, y] for x, y in zip(self.X, self.y) if y not in act_to_remove]
         newX = [x[0] for x in newXy]
         newY = [x[1] for x in newXy]
         self.X = newX
         self.y = newY
+
+        print("Activities removed because of small number of samples [act_n_samples - act_name]\n\n")
+        if act_to_remove:
+            for i in range(len(act_to_remove)):
+                print("{}-{}\n".format(act_to_remove[i], counts[i]))
+        else:
+            print("None")
+        print("\n")
 
     def simple_generate(self, dir_save_file, new_freq=20):
         if len(self.list_datasets) == 1:
@@ -455,5 +471,11 @@ class MetaLearning(object):
         print('Activities performed by less than 2 subjects')
         for row in invalid_rows:
             print(row)
+
+        print("\n\nActivities in this dataset:\n\n")
+        print("Train activities:\n {}\n\n".format(np.unique(y_train)))
+        print("Val activities:\n {}\n\n".format(np.unique(y_val)))
+        print("Test activities:\n {}\n\n".format(np.unique(y_test)))
+
         # except:
         #     sys.exit("[ERRO] Divisão em protocolo LOSO falhou. Verifique o número de classes do dataset!")
