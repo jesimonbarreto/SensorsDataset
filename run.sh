@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --qos=cpu
 #SBATCH -o ./../2-residuals/slurm/%J.out
-#SBATCH --mem=100GB 
+#SBATCH --mem=230GB 
 
 #conda remove --name frankdataset --all 
 conda env create -f environment.yml

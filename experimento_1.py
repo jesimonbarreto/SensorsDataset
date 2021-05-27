@@ -15,12 +15,13 @@ from tqdm import tqdm
 import time
 import argparse
 
+
 def instanciate_dataset(datasets_list, dir_datasets):
 
     file_wisdm = '/storage/datasets/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
-    file_pm = '/storage/datasets/sensors/originals/PAMAP2/Protocol/'
+    file_pm = '/storage/datasets/sensors/originals/PAMAP2/'
     file_mh = '/storage/datasets/sensors/originals/MHEALTHDATASET/'
-    file_wharf = '/storage/datasets/sensors/originals/WHARF'
+    file_wharf = '/storage/datasets/sensors/originals/WHARF/WHARF Data Set/Data/'
     file_uschad = '/storage/datasets/sensors/originals/USC-HAD'
 
     datasets = []
@@ -38,13 +39,13 @@ def instanciate_dataset(datasets_list, dir_datasets):
         sig_wharf = [swh.acc_right_wrist_X, swh.acc_right_wrist_Y, swh.acc_right_wrist_Z]
         wharf.set_signals_use(sig_wharf)
 
-    p2 = PAMAP2('pamap2', file_pm, dir_datasets, freq=50, trials_per_file=100000)
+    p2 = PAMAP2('pamap2', file_pm, dir_datasets, freq=100, trials_per_file=100000)
     if 'pamap2' in datasets_list:
         datasets.append(p2)
         sig_pm = [sp.acc1_dominant_wrist_X, sp.acc1_dominant_wrist_Y, sp.acc1_dominant_wrist_Z]
         p2.set_signals_use(sig_pm)
 
-    mh = MHEALTH('mhealth', file_mh, dir_datasets, freq=100, trials_per_file=100000)
+    mh = MHEALTH('mhealth', file_mh, dir_datasets, freq=50, trials_per_file=100000)
     if 'mhealth' in datasets_list:
         datasets.append(mh)
         sig_m = [sm.acc_right_lower_arm_X, sm.acc_right_lower_arm_Y, sm.acc_right_lower_arm_Z]
@@ -70,7 +71,7 @@ def process_datasets(datasets):
 
 def create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name):
     # Creating Loso evaluate generating
-    generate_ev = MetaLearning(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=0.5, time_wd=5)
+    generate_ev = MetaLearning(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=0.5, time_wd=1)
     generate_ev.set_name_act()
     # function to save information e data
     # files = glob.glob(dir_datasets+'*.pkl')
@@ -89,18 +90,23 @@ if __name__ == "__main__":
     if args.debug:
         import pydevd_pycharm
 
-        pydevd_pycharm.settrace('172.22.100.2', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
+        pydevd_pycharm.settrace('172.22.100.5', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
 
     dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
     dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_generated/'
 
-    datasets_list = ['wisdm', 'wharf', 'mhealth', 'pamap2', 'uschad']
+    if not os.path.exists(dir_datasets):
+        os.makedirs(dir_datasets)
+    if not os.path.exists(dir_save_file):
+        os.makedirs(dir_save_file)
+
+    datasets_list = ['wharf', 'wisdm', 'mhealth', 'uschad', 'pamap2']
     # debug porpouses
-    #datasets_list =  ['wharf', 'mhealth', 'uschad']
+   # datasets_list = ['wharf']
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
-    #process_datasets(datasets)
+    process_datasets(datasets)
     
     for target_dataset in tqdm(datasets_list):
         print("Target dataset: {}".format(target_dataset), flush=True)
