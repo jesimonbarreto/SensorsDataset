@@ -1,5 +1,6 @@
 from .Datasets import Dataset
 from enum import Enum
+import numpy as np
 
 
 class SignalsWisdm(Enum):
@@ -8,7 +9,7 @@ class SignalsWisdm(Enum):
     acc_front_pants_pocket_Z = 2
 
 
-actNamesWISDM = {
+actNameWISDM = {
     1: 'Walking',
     2: 'Jogging',
     3: 'Upstairs',
@@ -31,39 +32,61 @@ class Wisdm(Dataset):
     def preprocess(self):
         file_name = self.dir_dataset
         output_dir = self.dir_save
-        separator = '_'
-        idx_label = 1
 
         f = open(file_name)
         lines = f.readlines()
-        iterator = 0
         trial = []
         trial_id = 0
-        for line in lines:
+        for current_line, line in enumerate(lines):
             try:
-                split = line.strip().replace(';','').split(',')
-                subject, act, time_stamp, x, y, z = split[0], split[1], split[2], split[3], split[4], split[5]
-                #It is the same trial
-                if iterator < len(lines)-1 and lines[iterator+1].split(',')[1] == act and lines[iterator+1].split(',')[0] == subject:
-                    if time_stamp != '0': #timestamp equal to zero is a bug of the trial
-                        v = []
-                        data = []
-                        for d in self.signals_use:
-                            v.append(d.value)
-                        if 0 in v:
-                            data.append(float(x))
-                        if 1 in v:
-                            data.append(float(y))
-                        if 2 in v:
-                            data.append(float(z))
-                        trial.append(data)
-
-                #The next line will be a novel trial
+                # if current line is \n
+                if len(line.strip().replace(';','').split(',')) < 2:
+                    print('Erro :' + line)
+                    continue
                 else:
-                    #print('{} {} {}'.format(act, subject, trial_id))
-                    self.add_info_data(act, subject, trial_id, trial, output_dir)
-                    #self.save_file(act, subject, trial_id, trial, self.dir_save)
-                    trial_id = trial_id + 1
+                    split = line.strip().replace(';','').split(',')
+                    subject, act, time_stamp, x, y, z = split[0], split[1], split[2], split[3], split[4], split[5]
+                    sample = self.get_sample(x, y, z)
+
+                    # if next line is \n
+                    if len(lines[current_line+1].split(',')) < 2:
+                        # timestamp equal to zero is a bug of the trial
+                        if time_stamp != '0':
+                            trial.append(sample)
+
+                    # It is the same trial and is not the last line of this current trial
+                    elif current_line < len(lines)-1 and lines[current_line+1].split(',')[1] == act and lines[current_line+1].split(',')[0] == subject:
+                        # timestamp equal to zero is a bug of the trial
+                        if time_stamp != '0':
+                            trial.append(sample)
+
+                    # The next line will be a novel trial
+                    else:
+                        # add the current line
+                        # timestamp equal to zero is a bug of the trial
+                        if time_stamp != '0':
+                            trial.append(sample)
+                        # convert to numpy
+                        trial_np = np.array(trial)
+                        # save the trial
+                        self.add_info_data(act, subject, trial_id, trial_np, output_dir)
+                        # initiate a new trial
+                        trial = []
+                        trial_id = trial_id + 1
+
             except:
-                print('Erro :'+line)
+                print('[Except] Erro :' + line)
         self.save_data(output_dir)
+
+    def get_sample(self, x, y, z):
+        v = []
+        data = []
+        for d in self.signals_use:
+            v.append(d.value)
+        if 0 in v:
+            data.append(float(x))
+        if 1 in v:
+            data.append(float(y))
+        if 2 in v:
+            data.append(float(z))
+        return data
