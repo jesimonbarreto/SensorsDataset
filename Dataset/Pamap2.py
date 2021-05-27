@@ -91,14 +91,10 @@ class PAMAP2(Dataset):
                 positions: dominant wrist, chest and dominant side's ankle
                 sensors: heart rate, temperature, acc, gyr and mag
                 """
-    def action_code_to_name(self, act):
-        new_act = []
-        for a in act:
-            new_act.append(actNamePAMAP2[int(a)])
-        return new_act
 
     def preprocess(self):
-        files = glob.glob(pathname=os.path.join(self.dir_dataset,'*.dat'))#'Optional/*.dat')
+        files = glob.glob(pathname=os.path.join(self.dir_dataset, "Optional", '*.dat'))
+        files.extend(glob.glob(pathname=os.path.join(self.dir_dataset, "Protocol",'*.dat')))
         output_dir = self.dir_save #'../output/2'
         idx_label = 1
         subject = 0
@@ -112,7 +108,7 @@ class PAMAP2(Dataset):
             incorrect = 0
             for line in lines:
                 split = line.strip().split(' ')
-                sample =  np.asarray(split)
+                sample = np.asarray(split)
                 act = sample[1]
                 if act != '0':
                     data = []
@@ -121,7 +117,7 @@ class PAMAP2(Dataset):
                     sample = np.column_stack(data)
                     #sample = np.delete(sample, remove_columns)
 
-                    #It is the same trial
+                    # It is the same trial
                     #lines[iterator + 1].split(' ')[1] is the next activity
                     if iterator != len(lines)-1 and lines[iterator+1].split(' ')[1] == act:
                         idx = np.where(sample == 'NaN')[0]
@@ -129,9 +125,15 @@ class PAMAP2(Dataset):
                             trial.append(sample)
                         else:#Incorrect file
                             incorrect = incorrect+1
+                            #print("Line {} contains NaN. It will not be used.".format(iterator))
 
-                    #The next line will be a novel trial
+                    # The next line will be a novel trial
                     else:
+                        idx = np.where(sample == 'NaN')[0]
+                        if (idx.size == 0):
+                            trial.append(sample)
+                        else:  # Incorrect file
+                            incorrect = incorrect + 1
                         #act = self.action_code_to_name(act)
                         act = actNamePAMAP2[int(act)]
                         self.add_info_data(act, subject, trial_id, trial, output_dir)
