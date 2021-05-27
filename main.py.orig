@@ -25,14 +25,23 @@ if __name__ == "__main__":
         dir_datasets = sys.argv[2]
         dir_save_file = sys.argv[3]
     else:
+<<<<<<< HEAD
         #file_wisdm = '/home/jesimon/Documents/Project_sensors_dataset/wisdm/debug.txt'
         #dir_datasets = '/home/jesimon/Documents/Project_sensors_dataset/dataset_preprocess/'
         #dir_save_file = '/home/jesimon/Documents/Project_sensors_dataset/'
         file ='C:\\Users\\gcram\\Documents\\Smart Sense\\NewDatasetPool\\cookRaw\\'
-        file_pm = '/home/jesimon/Documents/others/datasets/PAMAP2_Dataset/'
+        dir_datasets = 'C:\\Users\\gcram\\Documents\\Smart Sense\\NewDatasetPool\\cookRaw\\'
         dir_save_file = 'C:\\Users\\gcram\\Documents\\Smart Sense\\NewDatasetPool\\cookRaw\\testOutput\\'
 	    
         
+=======
+        file_wisdm = '/home/jesimon/Documents/Project_sensors_dataset/wisdm/debug.txt'
+        dir_datasets = '/home/jesimon/Documents/Project_sensors_dataset/dataset_preprocess/'
+        dir_save_file = '/home/jesimon/Documents/Project_sensors_dataset/dataset_generated/'
+        file_utd1 = '/home/jesimon/Documents/others/datasets/Inertial/'
+        file_pm = '/home/jesimon/Documents/others/datasets/PAMAP2_Dataset/'
+        file_mh = '/home/jesimon/Documents/others/datasets/MHEALTHDATASET/'
+>>>>>>> 75caf05256d4fede1c28bcf7b949436d8f16f61a
     
     #Creating datasets
     #name, dir_dataset, dir_save, freq = 100, trial_per_file=100000

@@ -110,8 +110,13 @@ class PAMAP2(Dataset):
          
 
     def preprocess(self):
+<<<<<<< HEAD
         files = glob.glob(pathname=os.path.join(self.dir_dataset, "Optional", '*.dat'))
         files.extend(glob.glob(pathname=os.path.join(self.dir_dataset, "Protocol",'*.dat')))
+=======
+        files = glob.glob(pathname=os.path.join(self.dir_dataset,'Optional','*.dat'))#'Optional/*.dat')
+        files += glob.glob(pathname=os.path.join(self.dir_dataset,'Protocol','*.dat'))
+>>>>>>> 75caf05256d4fede1c28bcf7b949436d8f16f61a
         output_dir = self.dir_save #'../output/2'
         idx_label = 1
         subject = 0
@@ -134,7 +139,12 @@ class PAMAP2(Dataset):
                         data.append(smp)
                     sample = np.column_stack(data)
                     #sample = np.delete(sample, remove_columns)
+<<<<<<< HEAD
+
                     # It is the same trial
+=======
+                    #It is the same trial
+>>>>>>> 75caf05256d4fede1c28bcf7b949436d8f16f61a
                     #lines[iterator + 1].split(' ')[1] is the next activity
                     #remove data never used
                     #sample = self.clean_data_not_used(sample)
