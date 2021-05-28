@@ -10,10 +10,11 @@ from Process.Manager import preprocess_datasets
 from Process.Protocol import MetaLearning
 import os
 
-from Utils.utils_metalearning import all_activities, target_task_top4
+from Utils.utils_metalearning import all_activities, target_task_top4, all_activities_all_datasets
 from tqdm import tqdm
 import time
 import argparse
+import numpy as np
 
 
 def instanciate_dataset(datasets_list, dir_datasets):
@@ -69,14 +70,31 @@ def process_datasets(datasets):
     return datasets
 
 
-def create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name):
+def create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
+                   overlapping, time_wd, new_freq):
     # Creating Loso evaluate generating
-    generate_ev = MetaLearning(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=0.5, time_wd=1)
+    generate_ev = MetaLearning(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=overlapping,
+                               time_wd=time_wd)
     generate_ev.set_name_act()
     # function to save information e data
     # files = glob.glob(dir_datasets+'*.pkl')
     print("\n--Npz generating--\n", flush=True)
-    generate_ev.simple_generate(dir_save_file, new_freq=20)
+    X_train, y_train, X_val, y_val, X_test, y_test = generate_ev.simple_generate(dir_save_file, new_freq=new_freq)
+
+    all_act = all_activities_all_datasets(datasets_list)
+
+    final_act = list(np.unique(y_train))
+    final_act.extend(list(np.unique(y_val)))
+    final_act.extend(list(np.unique(y_test)))
+    final_act = np.unique(final_act)
+    diff = set(all_act).difference(set(final_act))
+
+    if len(diff):
+        print("\n\nActivities not used for make this dataset: {}\n".format(len(diff)))
+        print(diff)
+    else:
+        print("\n\nAll activities were used in this dataset:\n")
+
     print("\nNpz Done.\n", flush=True)
 
 
@@ -90,10 +108,14 @@ if __name__ == "__main__":
     if args.debug:
         import pydevd_pycharm
 
-        pydevd_pycharm.settrace('172.22.100.5', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
+        pydevd_pycharm.settrace('172.22.100.3', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
 
     dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
     dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_generated/'
+
+    overlapping = 0.5
+    time_wd = 5
+    new_freq = 20
 
     if not os.path.exists(dir_datasets):
         os.makedirs(dir_datasets)
@@ -102,11 +124,10 @@ if __name__ == "__main__":
 
     datasets_list = ['wharf', 'wisdm', 'mhealth', 'uschad', 'pamap2']
     # debug porpouses
-   # datasets_list = ['wharf']
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
-    process_datasets(datasets)
+    #process_datasets(datasets)
     
     for target_dataset in tqdm(datasets_list):
         print("Target dataset: {}".format(target_dataset), flush=True)
@@ -121,6 +142,7 @@ if __name__ == "__main__":
             source_tasks.extend(all_activities(dt))
             source_names += "_{}".format(dt)
         exp_name = "4ways_target[{}]_source[{}]_exp1".format(target_dataset, source_names)
-        create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name)
+        create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
+                       overlapping, time_wd, new_freq)
         end = time.time()
         print("Time passed target dataset {} = {}".format(target_dataset, end-start), flush=True)
