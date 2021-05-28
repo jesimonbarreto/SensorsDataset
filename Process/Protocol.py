@@ -270,12 +270,12 @@ class MetaLearning(object):
     def data_generator(self, files, data_name, dir_input_file, freq_data, new_freq):
 
         print("\nAdding samples from {}".format(data_name), flush=True)
-        for id_, fl in enumerate(tqdm(files, position=0, desc=" pkl files", leave=False, ncols=80)):
+        for id_, fl in enumerate(files):
             pkl = os.path.join(dir_input_file, data_name + '_' + str(id_) + '.pkl')
             with open(pkl, 'rb') as handle:
                 data = pickle.load(handle)
                 fl = [i for i in data]
-                for file in tqdm(fl,  position=1, desc=" trials loop", leave=False, ncols=80):
+                for file in fl:
                     label_ = file.split(self.separator)[self.idx_label]
                     if len(self.consult_label) > 0:
                         label_ = self.consult_label[label_]
@@ -297,7 +297,7 @@ class MetaLearning(object):
                         else:
                             samples = np.transpose(np.array(samples),(0, 2, 1))
 
-                        for i in tqdm(range(0, len(samples)), position=2, desc=" samples loop", leave=False, ncols=80):
+                        for i in range(0, len(samples)):
                             self.X.append(np.array([samples[i]]))
                             if self.name_act:
                                 act_name = data_name + '-' + label_
@@ -477,6 +477,8 @@ class MetaLearning(object):
         print("Train activities:\n {}\n\n".format(np.unique(y_train)))
         print("Val activities:\n {}\n\n".format(np.unique(y_val)))
         print("Test activities:\n {}\n\n".format(np.unique(y_test)))
+
+        return X_train, y_train, X_val, y_val, X_test, y_test
 
         # except:
         #     sys.exit("[ERRO] Divisão em protocolo LOSO falhou. Verifique o número de classes do dataset!")
