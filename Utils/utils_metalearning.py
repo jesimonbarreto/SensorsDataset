@@ -26,6 +26,21 @@ def all_activities(dataset_name):
     return output
 
 
+def all_activities_all_datasets(dataset_list):
+    """
+    Return a list of all activities
+    from a given dataset using
+    the format "dataset-activity"
+    """
+
+    output = []
+    for dataset_name in dataset_list:
+        dataset_act = globals()['actName' + dataset_name.upper()]
+        for act in dataset_act:
+            output.append(dataset_name + '-' + act.lower())
+    return output
+
+
 def target_task_top4(dataset_name):
     """
        Return a list with the names of the top4 most common activities
