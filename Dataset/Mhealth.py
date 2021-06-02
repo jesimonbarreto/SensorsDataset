@@ -56,16 +56,9 @@ class MHEALTH(Dataset):
                 sensors:acc, gyr, mag, eletrocardiogram
                 """
 
-    def action_code_to_name(self, act):
-        new_act = []
-        for a in act:
-            new_act.append(actNameMHEALTH[int(a)])
-        return new_act
-
     def preprocess(self):
         files = glob.glob(os.path.join(self.dir_dataset,'*.log')) #glob.glob(pathname='*.log')
         output_dir = self.dir_save  #'../output'
-
         subject = 0
         for file in files:
             f = open(file)
@@ -74,35 +67,35 @@ class MHEALTH(Dataset):
             trial = []
             trial_id = 0
             subject = subject + 1
+            #incorrect = 0
             for line in lines:
                 split = line.strip().split('\t')
-                columns = len(split)-1
-                if len(split) < 24:
-                    print('Error')
-                
-                act = split[columns]
-
-
-                #It is the same trial
-                if iterator != len(lines)-1 and lines[iterator+1].split('\t')[len(split)-1].replace('\n','') == act:
-                    if len(self.signals_use)>0:
-                        data = []
+                act = split[-1]
+                if act != '0':
+                    if len(self.signals_use) > 0:
+                        sample = []
                         for d in self.signals_use:
-                            data.append(float(split[d.value]))
-                        dc = np.column_stack(data)
+                            sample.append(float(split[d.value]))
                     else:
-                        dc = split[0:columns]
-                    trial.append(dc)
-                
-                #The next line will be a novel trial
-                else:
-                    #act = self.action_code_to_name(act)
-                    act = actNameMHEALTH[int(act)]
-                    self.add_info_data(act, subject, trial_id, trial, output_dir)
-                    trial_id = trial_id + 1
-                    trial = []
+                        sample = [float(x) for x in split[0:-1]]
+
+                    # array_sum = np.sum(sample)
+                    # array_has_nan = np.isnan(array_sum)
+                    # if not array_has_nan:
+                    trial.append(sample)
+                    # else:  # Incorrect file
+                    #     incorrect += 1
+
+                    #It is not the same trial
+                    if iterator == len(lines)-1 or lines[iterator+1].split('\t')[-1].replace('\n', '') != act:
+
+                        act = actNameMHEALTH[int(act)]
+                        self.add_info_data(act, subject, trial_id, np.array(trial), output_dir)
+                        trial_id = trial_id + 1
+                        trial = []
 
                 iterator = iterator + 1
             
             #print('file_name:[{}] s:[{}]'.format(file, subject))
+            #print('{} NaN lines in file {}'.format(str(incorrect), file))
         self.save_data(output_dir)

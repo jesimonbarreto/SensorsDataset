@@ -111,9 +111,9 @@ if __name__ == "__main__":
         pydevd_pycharm.settrace('172.22.100.3', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
 
     dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
-    dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_generated/'
+    dir_save_file = '/storage/datasets/sensors/nshot_experiments/pra_rodar/'
 
-    overlapping = 0.5
+    overlapping = 0
     time_wd = 5
     new_freq = 20
 
@@ -122,12 +122,13 @@ if __name__ == "__main__":
     if not os.path.exists(dir_save_file):
         os.makedirs(dir_save_file)
 
-    datasets_list = ['wharf', 'wisdm', 'mhealth', 'uschad', 'pamap2']
+    datasets_list = ['mhealth', 'wharf', 'wisdm',  'uschad', 'pamap2']
     # debug porpouses
+    #datasets_list = ['pamap2']
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
-    #process_datasets(datasets)
+    process_datasets(datasets)
     
     for target_dataset in tqdm(datasets_list):
         print("Target dataset: {}".format(target_dataset), flush=True)
@@ -141,7 +142,7 @@ if __name__ == "__main__":
         for dt in source_dataset:
             source_tasks.extend(all_activities(dt))
             source_names += "_{}".format(dt)
-        exp_name = "4ways_target[{}]_source[{}]_exp1".format(target_dataset, source_names)
+        exp_name = "4ways_target[{}]_source[{}]_exp1_d".format(target_dataset, source_names)
         create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
                        overlapping, time_wd, new_freq)
         end = time.time()

@@ -113,7 +113,6 @@ class PAMAP2(Dataset):
         files = glob.glob(pathname=os.path.join(self.dir_dataset, "Optional", '*.dat'))
         files.extend(glob.glob(pathname=os.path.join(self.dir_dataset, "Protocol",'*.dat')))
         output_dir = self.dir_save #'../output/2'
-        idx_label = 1
         subject = 0
         for file in files:
             f = open(file)
@@ -122,44 +121,23 @@ class PAMAP2(Dataset):
             trial = []
             trial_id = 0
             subject = subject + 1
-            incorrect = 0
             for line in lines:
                 split = line.strip().split(' ')
-                sample = np.asarray(split)
-                act = sample[1]
+                act = split[1]
                 if act != '0':
-                    data = []
+                    sample = []
                     for d in self.signals_use:
-                        smp = float(sample[d.value])
-                        data.append(smp)
-                    sample = np.column_stack(data)
-                    #sample = np.delete(sample, remove_columns)
-                    # It is the same trial
-                    #lines[iterator + 1].split(' ')[1] is the next activity
-                    #remove data never used
-                    #sample = self.clean_data_not_used(sample)
-                    if iterator != len(lines)-1 and lines[iterator+1].split(' ')[1] == act:
-                        idx = np.where(sample == 'NaN')[0]
-                        if(idx.size==0):
-                            trial.append(sample)
-                        else:#Incorrect file
-                            incorrect = incorrect+1
-                            #print("Line {} contains NaN. It will not be used.".format(iterator))
+                        smp = float(split[d.value])
+                        sample.append(smp)
 
-                    # The next line will be a novel trial
-                    else:
-                        idx = np.where(sample == 'NaN')[0]
-                        if (idx.size == 0):
-                            trial.append(sample)
-                        else:  # Incorrect file
-                            incorrect = incorrect + 1
-                        #act = self.action_code_to_name(act)
+                    trial.append(sample)
+                    # It is not the same trial
+                    if iterator == len(lines)-1 or lines[iterator+1].split(' ')[1] != act:
+
                         act = actNamePAMAP2[int(act)]
-                        self.add_info_data(act, subject, trial_id, trial, output_dir)
-                        #self.save_file(act, subject, trial_id, trial)
+                        self.add_info_data(act, subject, trial_id, np.array(trial), output_dir)
                         trial_id = trial_id + 1
                         trial = []
-
 
                 iterator = iterator + 1
             #print('file_name:[{}] s:[{}]'.format(file, subject))

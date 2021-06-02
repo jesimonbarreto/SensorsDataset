@@ -270,6 +270,7 @@ class MetaLearning(object):
     def data_generator(self, files, data_name, dir_input_file, freq_data, new_freq):
 
         print("\nAdding samples from {}".format(data_name), flush=True)
+        count = 0
         for id_, fl in enumerate(files):
             pkl = os.path.join(dir_input_file, data_name + '_' + str(id_) + '.pkl')
             with open(pkl, 'rb') as handle:
@@ -288,6 +289,17 @@ class MetaLearning(object):
                     samples = self.sw(trial=trial, freq=freq_data)
 
                     if samples:
+                        # remove samples with NaN
+                        new_samples = []
+                        for sample in samples:
+                            array_sum = np.sum(sample)
+                            array_has_nan = np.isnan(array_sum)
+                            if not array_has_nan:
+                                new_samples.append(sample)
+                            else:
+                                count += 1
+                        samples = new_samples
+
                         if freq_data != new_freq:
                             type_interp = 'cubic'
                             try:
@@ -308,7 +320,7 @@ class MetaLearning(object):
                             self.fundamental_matrix[label][subject_idx_] += 1
                     #else:
                     #    print('[Trial crop] Sample not used: size {}, local {}'.format(len(samples), file))
-        print("Done")
+        print(f'Done. Number of samples removed (NaN values) {count}.')
 
     def set_name_act(self):
         self.name_act = True
@@ -389,7 +401,13 @@ class MetaLearning(object):
         return acts, counts
 
     def remove_activities(self, n):
-        act_to_remove, counts = self.act_with_less_than_n_samples(n)
+        acts, cs = self.act_with_less_than_n_samples(n)
+        act_to_remove = []
+        counts = []
+        for i in range(len(acts)):
+            if acts[i] not in self.target_tasks:
+                act_to_remove.append(acts[i])
+                counts.append(cs[i])
 
         newXy = [[x, y] for x, y in zip(self.X, self.y) if y not in act_to_remove]
         newX = [x[0] for x in newXy]
@@ -410,7 +428,7 @@ class MetaLearning(object):
             name_file = '{}_f{}_t{}'.format(self.list_datasets[0].name, new_freq, self.time_wd)
         else:
 
-            name_file = 'Multi_f{}_t{}_{}'.format(new_freq, self.time_wd, self.exp_name)
+            name_file = 'f{}_t{}_{}'.format(new_freq, self.time_wd, self.exp_name)
 
         print("Reading pkl files...", flush=True)
 
@@ -437,7 +455,7 @@ class MetaLearning(object):
         self.groups = np.array(self.groups)
 
         # remove activities with less than 10 samples (necessary for 5-shot meta learning)
-        self.remove_activities(50)
+        self.remove_activities(200)
 
         self.X = np.array(self.X, dtype=float)
         self.y = np.array(self.y)
