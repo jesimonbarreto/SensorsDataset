@@ -134,8 +134,8 @@ class PAMAP2(Dataset):
                     # It is not the same trial
                     if iterator == len(lines)-1 or lines[iterator+1].split(' ')[1] != act:
 
-                        act = actNamePAMAP2[int(act)]
-                        self.add_info_data(act, subject, trial_id, np.array(trial), output_dir)
+                        act_name = actNamePAMAP2[int(act)]
+                        self.add_info_data(act_name, subject, trial_id, trial, output_dir)
                         trial_id = trial_id + 1
                         trial = []
 
