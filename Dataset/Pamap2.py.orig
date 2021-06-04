@@ -95,38 +95,6 @@ class PAMAP2(Dataset):
     def preprocess(self):
         files = glob.glob(pathname=os.path.join(self.dir_dataset, "Optional", '*.dat'))
         files.extend(glob.glob(pathname=os.path.join(self.dir_dataset, "Protocol",'*.dat')))
-<<<<<<< HEAD
-        output_dir = self.dir_save #'../output/2'
-        subject = 0
-        for file in files:
-            f = open(file)
-            lines = f.readlines()
-            iterator = 0
-            trial = []
-            trial_id = 0
-            subject = subject + 1
-            for line in lines:
-                split = line.strip().split(' ')
-                act = split[1]
-                if act != '0':
-                    sample = []
-                    for d in self.signals_use:
-                        smp = float(split[d.value])
-                        sample.append(smp)
-
-                    trial.append(sample)
-                    # It is not the same trial
-                    if iterator == len(lines)-1 or lines[iterator+1].split(' ')[1] != act:
-
-                        act_name = actNamePAMAP2[int(act)]
-                        self.add_info_data(act_name, subject, trial_id, trial, output_dir)
-                        trial_id = trial_id + 1
-                        trial = []
-
-                iterator = iterator + 1
-            #print('file_name:[{}] s:[{}]'.format(file, subject))
-            #print('{} incorrect lines in file {}'.format(str(incorrect), file))
-=======
         output_dir = self.dir_save
 
         for f in files:
@@ -136,6 +104,7 @@ class PAMAP2(Dataset):
             with open(f, 'r') as inp:
                 instances = [list(map(float, line.split)) for line in inp.read().splitlines()]
             
+<<<<<<< HEAD
             for instance in instances:
                 act_id = int(instance[1])
                 if act_id not in fmt_data:
@@ -156,5 +125,37 @@ class PAMAP2(Dataset):
 
                 act = actNamePAMAP2(act_id)
                 self.add_info_data(act, subject, trial_id, trial, output_dir)
->>>>>>> origin/main
+=======
+            cur_act = instances[0][1]
+            trial = []
+            for instance in instances:
+                act_id = int(instance[1])
+
+                if act_id not in fmt_data:
+                    fmt_data[act_id] = {}
+                    
+                if cur_act == act_id:
+                    trial.append(instance)
+                else:
+                    trial_id = max(list(fmt_data[act_id].keys())) if list(fmt_data[act_id].keys()) > 0 else 0
+                    fmt_data[act_id][trial_id + 1] = trial
+                    cur_act = act_id
+                    trial = []        
+
+            for act_id in fmt_data.keys():
+                for trial_id in fmt_data[act_id].keys():
+                    fmt_data[act_id][trial_id] = np.array(fmt_data[act_id][trial_id])
+                    
+                    # Sort by timestamp
+                    fmt_data[act_id][trial_id] = fmt_data[act_id][fmt_data[act_id][trial_id][:,0].argsort()]
+
+                    trial = fmt_data[act_id][trial_id][:, self.signals_use]
+
+                    # Filtro de NaNs
+                    # indexes = np.sum(~np.isnan(trial), axis=1) == 54
+                    # trial = trial[indexes]
+
+                    act = actNamePAMAP2(act_id)
+                    self.add_info_data(act, subject, trial_id, trial, output_dir)
+>>>>>>> 13b0b4b9ff0297cde31f1cae0fcfaa3d08ca10e6
         self.save_data(output_dir)
