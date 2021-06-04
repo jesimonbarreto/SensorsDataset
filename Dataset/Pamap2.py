@@ -119,7 +119,7 @@ class PAMAP2(Dataset):
             subject = int(f.split(os.sep)[-1][-7:-4])
             
             with open(f, 'r') as inp:
-                instances = [list(map(float, line.split)) for line in inp.read().splitlines()]
+                instances = [list(map(float, line.split())) for line in inp.read().splitlines()]
             
             cur_act = instances[0][1]
             trial = []
@@ -128,7 +128,7 @@ class PAMAP2(Dataset):
 
                 if act_id not in fmt_data:
                     fmt_data[act_id] = {}
-                    
+
                 if cur_act == act_id:
                     trial.append(instance)
                 else:
@@ -150,6 +150,6 @@ class PAMAP2(Dataset):
                     # indexes = np.sum(~np.isnan(trial), axis=1) == 54
                     # trial = trial[indexes]
 
-                    act = actNamePAMAP2(act_id)
+                    act = actNamePAMAP2[act_id]
                     self.add_info_data(act, subject, trial_id, trial, output_dir)
         self.save_data(output_dir)
