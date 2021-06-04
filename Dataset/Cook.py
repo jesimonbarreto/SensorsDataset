@@ -16,9 +16,9 @@ class SignalsCOOK(Enum):
 
 
 actNameCOOK = {
-    1:  'Activity 1',
-    2:  'Activity 2',
-    3:  'Activity 3'
+    1: 'Activity 1',
+    2: 'Activity 2',
+    3: 'Activity 3'
 }
 
 class Cook2020(Dataset):

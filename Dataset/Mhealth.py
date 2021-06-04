@@ -31,16 +31,16 @@ class SignalsMHEALTH(Enum):
 
 
 actNameMHEALTH = {
-        0: 'nothing',
-        1: 'Standing',
-        2: 'Sitting',
-        3: 'Lying down',
-        4: 'Walking',
-        5: 'Climbing stairs',
-        6: 'Waist bends forward',
-        7: 'Frontal elevation of lower arms',
-        8: 'Knees bending (crouching)',
-        9: 'Cycling',
+        0:  'Nothing',
+        1:  'Standing',
+        2:  'Sitting',
+        3:  'Lying down',
+        4:  'Walking',
+        5:  'Climbing stairs',
+        6:  'Waist bends forward',
+        7:  'Frontal elevation of lower arms',
+        8:  'Knees bending (crouching)',
+        9:  'Cycling',
         10: 'Jogging',
         11: 'Running',
         12: 'Jump front & back'
