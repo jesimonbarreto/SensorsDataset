@@ -1,7 +1,8 @@
-from .Datasets import Dataset
+from Dataset import Dataset
 import numpy as np
 import glob, os
 from enum import Enum
+from pprint import pprint
 
 class SignalsPAMAP2(Enum):
     timestamp = 0
@@ -132,19 +133,20 @@ class PAMAP2(Dataset):
                 if cur_act == act_id:
                     trial.append(instance)
                 else:
-                    trial_id = max(list(fmt_data[act_id].keys())) if list(fmt_data[act_id].keys()) > 0 else 0
+                    trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
                     fmt_data[act_id][trial_id + 1] = trial
                     cur_act = act_id
-                    trial = []        
+                    trial = []
 
             for act_id in fmt_data.keys():
-                for trial_id in fmt_data[act_id].keys():
-                    fmt_data[act_id][trial_id] = np.array(fmt_data[act_id][trial_id])
-                    
-                    # Sort by timestamp
-                    fmt_data[act_id][trial_id] = fmt_data[act_id][fmt_data[act_id][trial_id][:,0].argsort()]
+                for trial_id, trial in fmt_data[act_id].items():
+                    trial = np.array(trial)
 
-                    trial = fmt_data[act_id][trial_id][:, self.signals_use]
+                    # Sort by timestamp
+                    trial = trial[trial[:,0].argsort()]
+
+                    signals = [signal.value for signal in self.signals_use]
+                    trial = trial[:, signals]
 
                     # Filtro de NaNs
                     # indexes = np.sum(~np.isnan(trial), axis=1) == 54
