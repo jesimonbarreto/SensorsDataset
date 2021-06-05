@@ -270,7 +270,7 @@ class MetaLearning(object):
     def data_generator(self, files, data_name, dir_input_file, freq_data, new_freq):
 
         print("\nAdding samples from {}".format(data_name), flush=True)
-        count = 0
+        count = {}
         for id_, fl in enumerate(files):
             pkl = os.path.join(dir_input_file, data_name + '_' + str(id_) + '.pkl')
             with open(pkl, 'rb') as handle:
@@ -297,7 +297,10 @@ class MetaLearning(object):
                             if not array_has_nan:
                                 new_samples.append(sample)
                             else:
-                                count += 1
+                                if label_ not in count:
+                                    count[label_] = 1
+                                else:
+                                    count[label_] += 1
                         samples = new_samples
 
                         if freq_data != new_freq:
@@ -320,7 +323,9 @@ class MetaLearning(object):
                             self.fundamental_matrix[label][subject_idx_] += 1
                     #else:
                     #    print('[Trial crop] Sample not used: size {}, local {}'.format(len(samples), file))
-        print(f'Done. Number of samples removed (NaN values) {count}.')
+        print(f'Done. \nNumber of samples per activity removed (NaN values).')
+        for c, v in count.items():
+            print(f'{c} - {v}')
 
     def set_name_act(self):
         self.name_act = True
@@ -415,7 +420,7 @@ class MetaLearning(object):
         self.X = newX
         self.y = newY
 
-        print("Activities removed because of small number of samples [act_n_samples - act_name]\n\n")
+        print("Activities removed because of small number of samples\n\n")
         if act_to_remove:
             for i in range(len(act_to_remove)):
                 print("{}-{}\n".format(act_to_remove[i], counts[i]))
