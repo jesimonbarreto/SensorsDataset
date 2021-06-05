@@ -62,14 +62,14 @@ class SignalsPAMAP2(Enum):
 
 
 actNamePAMAP2 = {
-    1: 'Lying',
-    2: 'Sitting',
-    3: 'Standing',
-    4: 'Walking',
-    5: 'Running',
-    6: 'cycling',
-    7: 'Nordic walking',
-    9: 'watching TV',
+    1:  'Lying',
+    2:  'Sitting',
+    3:  'Standing',
+    4:  'Walking',
+    5:  'Running',
+    6:  'cycling',
+    7:  'Nordic walking',
+    9:  'watching TV',
     10: 'computer work',
     11: 'car driving',
     12: 'ascending stairs',
@@ -80,7 +80,7 @@ actNamePAMAP2 = {
     19: 'house cleaning',
     20: 'playing soccer',
     24: 'rope jumping',
-    0: 'other (transient activities)'
+    0:  'other (transient activities)'
 }
 
 
@@ -126,17 +126,17 @@ class PAMAP2(Dataset):
             trial = []
             for instance in instances:
                 act_id = int(instance[1])
+                if act_id != 0:
+                    if act_id not in fmt_data:
+                        fmt_data[act_id] = {}
 
-                if act_id not in fmt_data:
-                    fmt_data[act_id] = {}
-
-                if cur_act == act_id:
-                    trial.append(instance)
-                else:
-                    trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
-                    fmt_data[act_id][trial_id + 1] = trial
-                    cur_act = act_id
-                    trial = [instance]
+                    if cur_act == act_id:
+                        trial.append(instance)
+                    else:
+                        trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
+                        fmt_data[act_id][trial_id + 1] = trial
+                        cur_act = act_id
+                        trial = [instance]
 
             for act_id in fmt_data.keys():
                 for trial_id, trial in fmt_data[act_id].items():
