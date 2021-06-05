@@ -136,14 +136,14 @@ class PAMAP2(Dataset):
                     trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
                     fmt_data[act_id][trial_id + 1] = trial
                     cur_act = act_id
-                    trial = []
+                    trial = [instance]
 
             for act_id in fmt_data.keys():
                 for trial_id, trial in fmt_data[act_id].items():
                     trial = np.array(trial)
 
                     # Sort by timestamp
-                    trial = trial[trial[:,0].argsort()]
+                    trial = trial[trial[:, 0].argsort()]
 
                     signals = [signal.value for signal in self.signals_use]
                     trial = trial[:, signals]
