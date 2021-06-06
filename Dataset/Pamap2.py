@@ -117,7 +117,7 @@ class PAMAP2(Dataset):
 
         for f in files:
             fmt_data = {}
-            subject = int(f.split(os.sep)[-1][-7:-4])
+            subject = int(f[-7:-4])
             
             with open(f, 'r') as inp:
                 instances = [list(map(float, line.split())) for line in inp.read().splitlines()]

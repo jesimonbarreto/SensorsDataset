@@ -59,43 +59,47 @@ class MHEALTH(Dataset):
     def preprocess(self):
         files = glob.glob(os.path.join(self.dir_dataset,'*.log')) #glob.glob(pathname='*.log')
         output_dir = self.dir_save  #'../output'
-        subject = 0
-        for file in files:
-            f = open(file)
-            lines = f.readlines()
-            iterator = 0
-            trial = []
-            trial_id = 0
-            subject = subject + 1
-            #incorrect = 0
-            for line in lines:
-                split = line.strip().split('\t')
-                act = split[-1]
-                if act != '0':
-                    if len(self.signals_use) > 0:
-                        sample = []
-                        for d in self.signals_use:
-                            sample.append(float(split[d.value]))
-                    else:
-                        sample = [float(x) for x in split[0:-1]]
+        for f in files:
+            if '.log' not in f:
+                continue
 
-                    # array_sum = np.sum(sample)
-                    # array_has_nan = np.isnan(array_sum)
-                    # if not array_has_nan:
-                    trial.append(sample)
-                    # else:  # Incorrect file
-                    #     incorrect += 1
-
-                    #It is not the same trial
-                    if iterator == len(lines)-1 or lines[iterator+1].split('\t')[-1].replace('\n', '') != act:
-
-                        act = actNameMHEALTH[int(act)]
-                        self.add_info_data(act, subject, trial_id, np.array(trial), output_dir)
-                        trial_id = trial_id + 1
-                        trial = []
-
-                iterator = iterator + 1
+            fmt_data = {}
+            start = -6 if f[-6].isnumeric() else -5
+            subject = int(f[start:-4])
             
-            #print('file_name:[{}] s:[{}]'.format(file, subject))
-            #print('{} NaN lines in file {}'.format(str(incorrect), file))
+            with open(f, 'r') as inp:
+                instances = [list(map(float, line.split())) for line in inp.read().splitlines()]
+            
+            cur_act = instances[0][1]
+            trial = []
+            for instance in instances:
+                act_id = int(instance[1])
+                if act_id != 0:
+                    if act_id not in fmt_data:
+                        fmt_data[act_id] = {}
+
+                    if cur_act == act_id:
+                        trial.append(instance)
+                    else:
+                        trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
+                        fmt_data[act_id][trial_id + 1] = trial
+                        cur_act = act_id
+                        trial = [instance]
+
+            for act_id in fmt_data.keys():
+                for trial_id, trial in fmt_data[act_id].items():
+                    trial = np.array(trial)
+
+                    # Sort by timestamp
+                    trial = trial[trial[:, 0].argsort()]
+
+                    signals = [signal.value for signal in self.signals_use]
+                    trial = trial[:, signals]
+
+                    # Filtro de NaNs
+                    # indexes = np.sum(~np.isnan(trial), axis=1) == 54
+                    # trial = trial[indexes]
+
+                    act = actNameMHEALTH[act_id]
+                    self.add_info_data(act, subject, trial_id, trial, output_dir)
         self.save_data(output_dir)
