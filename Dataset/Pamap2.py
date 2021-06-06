@@ -126,32 +126,32 @@ class PAMAP2(Dataset):
             trial = []
             for instance in instances:
                 act_id = int(instance[1])
-                if act_id != 0:
-                    if act_id not in fmt_data:
-                        fmt_data[act_id] = {}
+                if act_id not in fmt_data:
+                    fmt_data[act_id] = {}
 
-                    if cur_act == act_id:
-                        trial.append(instance)
-                    else:
-                        trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
-                        fmt_data[act_id][trial_id + 1] = trial
-                        cur_act = act_id
-                        trial = [instance]
+                if cur_act == act_id:
+                    trial.append(instance)
+                else:
+                    trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
+                    fmt_data[act_id][trial_id + 1] = trial
+                    cur_act = act_id
+                    trial = [instance]
 
             for act_id in fmt_data.keys():
-                for trial_id, trial in fmt_data[act_id].items():
-                    trial = np.array(trial)
+                if act_id != 0:
+                    for trial_id, trial in fmt_data[act_id].items():
+                        trial = np.array(trial)
 
-                    # Sort by timestamp
-                    trial = trial[trial[:, 0].argsort()]
+                        # Sort by timestamp
+                        trial = trial[trial[:, 0].argsort()]
 
-                    signals = [signal.value for signal in self.signals_use]
-                    trial = trial[:, signals]
+                        signals = [signal.value for signal in self.signals_use]
+                        trial = trial[:, signals]
 
-                    # Filtro de NaNs
-                    # indexes = np.sum(~np.isnan(trial), axis=1) == 54
-                    # trial = trial[indexes]
+                        # Filtro de NaNs
+                        # indexes = np.sum(~np.isnan(trial), axis=1) == 54
+                        # trial = trial[indexes]
 
-                    act = actNamePAMAP2[act_id]
-                    self.add_info_data(act, subject, trial_id, trial, output_dir)
+                        act = actNamePAMAP2[act_id]
+                        self.add_info_data(act, subject, trial_id, trial, output_dir)
         self.save_data(output_dir)
