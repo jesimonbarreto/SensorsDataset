@@ -4,9 +4,9 @@ import numpy as np
 
 
 class SignalsWisdm(Enum):
-    acc_front_pants_pocket_X = 0
-    acc_front_pants_pocket_Y = 1
-    acc_front_pants_pocket_Z = 2
+    acc_front_pants_pocket_X = 3
+    acc_front_pants_pocket_Y = 4
+    acc_front_pants_pocket_Z = 5
 
 
 actNameWISDM = {
@@ -30,63 +30,57 @@ class Wisdm(Dataset):
                 """
 
     def preprocess(self):
-        file_name = self.dir_dataset
+        filename = self.dir_dataset
         output_dir = self.dir_save
 
-        f = open(file_name)
-        lines = f.readlines()
-        trial = []
-        trial_id = 0
-        for current_line, line in enumerate(lines):
-            try:
-                # if current line is \n
-                if len(line.strip().replace(';','').split(',')) < 2:
-                    print('Erro :' + line)
+        output_dir = self.dir_save
+
+        with open(filename, 'r') as f:
+            fmt_data = {}
+            instances = [line[:-1].split(',') for line in f.read().splitlines()]
+
+            cur_subject = int(instances[0][0])
+            cur_act = instances[0][1]
+            trial = []
+            for instance in instances:
+                if len(instance) != 6:
                     continue
-                else:
-                    split = line.strip().replace(';','').split(',')
-                    subject, act, time_stamp, x, y, z = split[0], split[1], split[2], split[3], split[4], split[5]
-                    sample = self.get_sample(x, y, z)
 
-                    # if next line is \n
-                    if len(lines[current_line+1].split(',')) < 2:
-                        # timestamp equal to zero is a bug of the trial
-                        if time_stamp != '0':
-                            trial.append(sample)
+                instance[2:] = list(map(float, instance[2:]))
 
-                    # It is the same trial and is not the last line of this current trial
-                    elif current_line < len(lines)-1 and lines[current_line+1].split(',')[1] == act and lines[current_line+1].split(',')[0] == subject:
-                        # timestamp equal to zero is a bug of the trial
-                        if time_stamp != '0':
-                            trial.append(sample)
+                subject = int(instance[0])
+                act = instance[1]
 
-                    # The next line will be a novel trial
-                    else:
-                        # add the current line
-                        # timestamp equal to zero is a bug of the trial
-                        if time_stamp != '0':
-                            trial.append(sample)
-                        # convert to numpy
-                        trial_np = np.array(trial)
-                        # save the trial
-                        self.add_info_data(act, subject, trial_id, trial_np, output_dir)
-                        # initiate a new trial
-                        trial = []
-                        trial_id = trial_id + 1
+                # Add keys to dict if they are not present
+                if subject not in fmt_data:
+                    fmt_data[subject] = {}
+                if act not in fmt_data[subject]:
+                    fmt_data[subject][act] = {}
 
-            except:
-                print('[Except] Erro :' + line)
+                # Reset varaibles to add new trial on act change or subj change
+                if cur_act != act or cur_subject != subject:
+                    trial_id = max(list(fmt_data[subject][act].keys())) if len(list(fmt_data[subject][act].keys())) > 0 else 0
+                    fmt_data[subject][act][trial_id + 1] = trial
+                    cur_act = act
+                    cur_subject = subject
+                    trial = []
+                
+                trial.append(instance)
+
+            for subject in fmt_data.keys():
+                for act in fmt_data[subject].keys():
+                    for trial_id, trial in fmt_data[subject][act].items():
+                        trial = np.array(trial)
+
+                        # Sort by timestamp
+                        trial = trial[trial[:, 2].argsort()]
+
+                        signals = [signal.value for signal in self.signals_use]
+                        trial = trial[:, signals].astype(np.float)
+
+                        # Filtro de NaNs
+                        # indexes = np.sum(~np.isnan(trial), axis=1) == 54
+                        # trial = trial[indexes]
+
+                        self.add_info_data(act, subject, trial_id, trial, output_dir)
         self.save_data(output_dir)
-
-    def get_sample(self, x, y, z):
-        v = []
-        data = []
-        for d in self.signals_use:
-            v.append(d.value)
-        if 0 in v:
-            data.append(float(x))
-        if 1 in v:
-            data.append(float(y))
-        if 2 in v:
-            data.append(float(z))
-        return data

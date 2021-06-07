@@ -10,24 +10,24 @@ class SignalsMHEALTH(Enum):
     acc_chest_Z = 2
     elecd_l1 = 3
     elecd_l2 = 4 
-    acc_left_ankle_X = 4
-    acc_left_ankle_Y = 5
-    acc_left_ankle_Z = 6
-    gyr_left_ankle_X = 7
-    gyr_left_ankle_Y = 8 
-    gyr_left_ankle_Z = 9
-    mag_left_ankle_X = 10
-    mag_left_ankle_Y = 11
-    mag_left_ankle_Z = 12
-    acc_right_lower_arm_X = 13
-    acc_right_lower_arm_Y = 14
-    acc_right_lower_arm_Z = 15
-    gyr_right_lower_arm_X = 16
-    gyr_right_lower_arm_Y = 17
-    gyr_right_lower_arm_Z = 18
-    mag_right_lower_arm_X = 19
-    mag_right_lower_arm_Y = 20
-    mag_right_lower_arm_Z = 21
+    acc_left_ankle_X = 5
+    acc_left_ankle_Y = 6
+    acc_left_ankle_Z = 7
+    gyr_left_ankle_X = 8
+    gyr_left_ankle_Y = 9 
+    gyr_left_ankle_Z = 10
+    mag_left_ankle_X = 11
+    mag_left_ankle_Y = 12
+    mag_left_ankle_Z = 13
+    acc_right_lower_arm_X = 14
+    acc_right_lower_arm_Y = 15
+    acc_right_lower_arm_Z = 16
+    gyr_right_lower_arm_X = 17
+    gyr_right_lower_arm_Y = 18
+    gyr_right_lower_arm_Z = 19
+    mag_right_lower_arm_X = 20
+    mag_right_lower_arm_Y = 21
+    mag_right_lower_arm_Z = 22
 
 
 actNameMHEALTH = {
@@ -77,21 +77,18 @@ class MHEALTH(Dataset):
                 if act_id not in fmt_data:
                     fmt_data[act_id] = {}
 
-                if cur_act == act_id:
-                    trial.append(instance)
-                else:
+                if cur_act != act_id:
                     trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
                     fmt_data[act_id][trial_id + 1] = trial
                     cur_act = act_id
-                    trial = [instance]
+                    trial = []
+
+                trial.append(instance)
 
             for act_id in fmt_data.keys():
                 if act_id != 0:
                     for trial_id, trial in fmt_data[act_id].items():
                         trial = np.array(trial)
-
-                        # Sort by timestamp
-                        trial = trial[trial[:, 0].argsort()]
 
                         signals = [signal.value for signal in self.signals_use]
                         trial = trial[:, signals]

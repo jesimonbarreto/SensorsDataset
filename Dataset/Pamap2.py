@@ -129,13 +129,13 @@ class PAMAP2(Dataset):
                 if act_id not in fmt_data:
                     fmt_data[act_id] = {}
 
-                if cur_act == act_id:
-                    trial.append(instance)
-                else:
+                if cur_act != act_id:
                     trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
                     fmt_data[act_id][trial_id + 1] = trial
                     cur_act = act_id
-                    trial = [instance]
+                    trial = []
+
+                trial.append(instance)
 
             for act_id in fmt_data.keys():
                 if act_id != 0:
