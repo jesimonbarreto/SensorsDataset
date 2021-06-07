@@ -69,7 +69,7 @@ def process_datasets(datasets):
     return datasets
 
 
-def create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
+def create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
                    overlapping, time_wd, new_freq):
     # Creating Loso evaluate generating
     generate_ev = MetaLearning(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=overlapping,
@@ -128,7 +128,7 @@ if __name__ == "__main__":
             source_tasks.extend(target_task_top4(dt))
             source_names += "_{}".format(dt)
         exp_name = "4ways_target[{}]_source[{}]_exp1_a".format(target_dataset, source_names)
-        create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
+        create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
                        overlapping, time_wd, new_freq)
         end = time.time()
         print("Time passed target dataset {} = {}".format(target_dataset, end - start), flush=True)

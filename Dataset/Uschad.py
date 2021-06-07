@@ -76,6 +76,5 @@ class USCHAD(Dataset):
             act = act.replace("-", " ")
             act = self.fix_name_act(act)
             self.add_info_data(act, subject, trial_id, trial, self.dir_save)
-            #print('file_name:[{}] s:[{}]'.format(filepath, subject))
 
         self.save_data(self.dir_save)
