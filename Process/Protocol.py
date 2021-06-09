@@ -460,17 +460,22 @@ class MetaLearning(object):
         self.groups = np.array(self.groups)
 
         # remove activities with less than n samples (necessary for 20-shot meta learning)
-        self.remove_activities(99)
+        self.remove_activities(199)
 
         self.X = np.array(self.X, dtype=float)
         self.y = np.array(self.y)
 
-        # invalid_rows = []
-        # for row in self.fundamental_matrix:
-        #     print(row)
-        #     check_zeros = np.where(row != 0.)
-        #     if check_zeros[0].shape[0] < 2:  # An activity is  performed just by one subject
-        #         invalid_rows.append(row)
+        # normalization [-0.5, 0.5]
+        for dataset in tqdm(self.list_datasets, desc='Normalizing samples'):
+            tmp = []
+            for xx, yy in zip(self.X, self.y):
+                # get all activities from a dataset
+                if dataset.name in yy:
+                    tmp.append(xx)
+            # normalize each sample from a dataset using min max calculate using tmp
+            for idx, yy in enumerate(self.y):
+                if dataset.name in yy:
+                    self.X[idx] = ((self.X[idx] - np.min(tmp)) / (np.max(tmp) - np.min(tmp))) - 0.5
 
         # Meta learning train and test splits for each few-shot scenario
 

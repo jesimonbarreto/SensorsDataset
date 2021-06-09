@@ -108,7 +108,7 @@ if __name__ == "__main__":
     if args.debug:
         import pydevd_pycharm
 
-        pydevd_pycharm.settrace('172.22.100.7', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
+        pydevd_pycharm.settrace('172.22.100.3', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
 
     dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
     dir_save_file = '/storage/datasets/sensors/nshot_experiments/pra_rodar/'
