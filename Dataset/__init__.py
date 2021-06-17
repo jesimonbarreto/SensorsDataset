@@ -11,7 +11,7 @@ from .Utdmhad2 import UTDMHAD2
 from .Utdmhad2 import SignalsUtdmhad2
 from .Wharf import WHARF
 from .Wharf import SignalsWharf
-from .Nonsense19 import NonSense
-from .Cook import Cook2020
+from .Nonsense19 import NONSENSE
+from .Cook2020 import COOK
 from .Uschad import USCHAD
 
