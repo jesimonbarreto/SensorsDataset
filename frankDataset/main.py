@@ -7,13 +7,12 @@ from Dataset.Wisdm import SignalsWisdm as sw
 from Dataset.Utdmhad1 import UTDMHAD1
 from Dataset.Utdmhad1 import SignalsUtdmhad1 as su
 from Dataset.Mhealth import MHEALTH
-from Dataset.Mhealth import SignalsMHEALTH as sm
+from Dataset.Mhealth import SignalsMHEALTH as smh
 from Dataset.Pamap2 import PAMAP2
 from Dataset.Pamap2 import SignalsPAMAP2 as sp
 from Process.Manager import preprocess_datasets
-from Dataset.Datasets import Wisdm
-from Dataset.Cook2020 import cook2020
-from Dataset.Nonsense19 import NonSense
+from Dataset.Cook2020 import COOK
+from Dataset.Nonsense19 import NONSENSE
 from Process.Protocol import Loso
 
 
@@ -29,8 +28,8 @@ if __name__ == "__main__":
         #dir_datasets = '/home/jesimon/Documents/Project_sensors_dataset/dataset_preprocess/'
         #dir_save_file = '/home/jesimon/Documents/Project_sensors_dataset/'
         #file_pm = '/home/jesimon/Documents/others/datasets/PAMAP2_Dataset/'
-        file_pm ='C:\\Users\\gcram\\Documents\\Dataset\\LOSO\\PAMAP2.npz'
-        file_usc = 'C:\\Users\\gcram\\Documents\\Dataset\\LOSO\\USCHAD.npz'
+        file_p2 ='C:\\Users\\gcram\\Documents\\Dataset\\originals\\PAMAP2\\'
+        file_mh = 'C:\\Users\\gcram\\Documents\\Dataset\\originals\\MHEALTHDATASET'
         savePath = 'C:\\Users\\gcram\\Documents\\Dataset\\frankDataset\\'
         
     
@@ -38,9 +37,9 @@ if __name__ == "__main__":
     #name, dir_dataset, dir_save, freq = 100, trial_per_file=100000
     #w = Wisdm('Wisdm', file_wisdm, dir_datasets, freq = 20, trials_per_file = 1000000)
     #utd = UTDMHAD1('UTD1', file_utd1, dir_datasets, freq = 50, trials_per_file = 1000000)
-    p2 = PAMAP2('Pamap2', sourceFile, savePath, freq = 100, trials_per_file = 10000)
+    p2 = PAMAP2('Pamap2', file_p2, savePath, freq = 100, trials_per_file = 10000)
     #usc = USCHAD('Uschad',file_usc,savePath,freq = 100, trials_per_file = 10000)
-    mh = MHEALTH('Mhealth', file_mh, dir_datasets, freq = 100, trials_per_file = 10000)
+    mh = MHEALTH('Mhealth', file_mh, savePath, freq = 100, trials_per_file = 10000)
 
     #Define signals of each dataset
     #sig_w = [sw.acc_front_pants_pocket_X, sw.acc_front_pants_pocket_Y, sw.acc_front_pants_pocket_Z]
