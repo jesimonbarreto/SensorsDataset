@@ -6,12 +6,12 @@ import numpy as np
 
 
 class SignalsUSCHAD(Enum):
-    acc_front_right_hip_X = 1
-    acc_front_right_hip_Y = 2 
-    acc_front_right_hip_Z = 3
-    gyr_front_right_hip_X = 4
-    gyr_front_right_hip_Y = 5
-    gyr_front_right_hip_Z = 6
+    acc_front_right_hip_X = 0
+    acc_front_right_hip_Y = 1
+    acc_front_right_hip_Z = 2
+    gyr_front_right_hip_X = 3
+    gyr_front_right_hip_Y = 4
+    gyr_front_right_hip_Z = 5
 
 
 actNameUSCHAD = {
