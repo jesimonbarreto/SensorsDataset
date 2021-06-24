@@ -86,7 +86,7 @@ def create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_t
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--debug', required=True, type=int)
+    parser.add_argument('--debug', action='store_true')
 
     args = parser.parse_args()
 
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     datasets_list = ['mhealth', 'wharf', 'wisdm', 'uschad', 'pamap2']
     # debug porpouses
-    # datasets_list = ['pamap2']
+    #datasets_list = ['pamap2', 'wharf']
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
@@ -117,7 +117,6 @@ if __name__ == "__main__":
 
     for target_dataset in tqdm(datasets_list):
         print("Target dataset: {}".format(target_dataset), flush=True)
-        exp_name = "1_" + target_dataset
         start = time.time()
         target_tasks = target_task_top4(target_dataset)
 

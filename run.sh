@@ -9,4 +9,4 @@ source activate frankdataset
 conda info --envs 
 
 
-srun python ./experimento_1.py
+srun python ./exp_1a.py

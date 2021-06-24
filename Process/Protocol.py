@@ -361,9 +361,17 @@ class MetaLearning(object):
                 X_test.append(sample)
                 y_test.append(label)
 
-        X_train, X_val, y_train, y_val = train_test_split(np.array(_X_train), _y_train, test_size=0.2, random_state=42)
+        # divide training per dataset
+        Xy_train = {}
+        for xx, yy in zip(_X_train, _y_train):
+            dataset_name = yy.split('-')[0]
+            if dataset_name in Xy_train:
+                Xy_train[dataset_name][0].append(np.squeeze(xx))
+                Xy_train[dataset_name][1].append(yy)
+            else:
+                Xy_train[dataset_name] = [[xx], [yy]]
 
-        return X_train, np.array(y_train), X_val, np.array(y_val), np.array(X_test), np.array(y_test)
+        return Xy_train, np.array(X_test), np.array(y_test)
 
     def get_n_random_sample_per_class(self, indexs, y, n_shots):
         classes = np.unique(y)
@@ -479,7 +487,7 @@ class MetaLearning(object):
 
         # Meta learning train and test splits for each few-shot scenario
 
-        X_train, y_train, X_val, y_val, X_test, y_test = self.split_data()
+        Xy_train, X_test, y_test = self.split_data()
 
         one_shot_kfold = self.get_k_fold(X_test, y_test, 1, 5)
         five_shot_kfold = self.get_k_fold(X_test, y_test, 5, 5)
@@ -488,9 +496,8 @@ class MetaLearning(object):
         no_shot_kfold = self.get_k_fold(X_test, y_test, -1, 5)
 
         np.savez_compressed(os.path.join(dir_save_file, name_file + "_FSL"),
-                            X_train=X_train, y_train=y_train,
+                            Xy_train=Xy_train,
                             X_test=X_test, y_test=y_test,
-                            X_val=X_val, y_val=y_val,
                             kfold_1_shot=one_shot_kfold,
                             kfold_5_shot=five_shot_kfold,
                             kfold_10_shot=ten_shot_kfold,
@@ -501,12 +508,7 @@ class MetaLearning(object):
         # for row in invalid_rows:
         #     print(row)
 
-        print("\n\nActivities in this dataset:\n\n")
-        print("Train activities:\n {}\n\n".format(np.unique(y_train)))
-        print("Val activities:\n {}\n\n".format(np.unique(y_val)))
-        print("Test activities:\n {}\n\n".format(np.unique(y_test)))
-
-        return X_train, y_train, X_val, y_val, X_test, y_test
+        return Xy_train, X_test, y_test
 
         # except:
         #     sys.exit("[ERRO] Divisão em protocolo LOSO falhou. Verifique o número de classes do dataset!")
