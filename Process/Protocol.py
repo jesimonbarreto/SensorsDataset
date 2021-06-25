@@ -224,6 +224,7 @@ class MetaLearning(object):
         self.idx_subject = 1
         self.consult_label = {}
         self.name_act = False
+        self.name_sub = False
         self.source_tasks = source_tasks
         self.target_tasks = target_tasks
         self.exp_name = exp_name
@@ -314,10 +315,14 @@ class MetaLearning(object):
 
                         for i in range(0, len(samples)):
                             self.X.append(np.array([samples[i]]))
+                            act_name = ''
                             if self.name_act:
-                                act_name = data_name + '-' + label_
-                            else:
-                                act_name = label_
+                                act_name += data_name + '-'
+                            if self.name_sub:
+                                act_name += subject_idx_ + '-'
+
+                            act_name += label_
+
                             self.y.append(act_name)
                             self.groups.append(subject_idx_)
                             self.fundamental_matrix[label][subject_idx_] += 1
@@ -329,6 +334,9 @@ class MetaLearning(object):
 
     def set_name_act(self):
         self.name_act = True
+
+    def set_name_sub(self):
+        self.name_sub = True
 
     def remove_subject(self, code):
         pass
@@ -510,5 +518,204 @@ class MetaLearning(object):
 
         return Xy_train, X_test, y_test
 
-        # except:
-        #     sys.exit("[ERRO] Divisão em protocolo LOSO falhou. Verifique o número de classes do dataset!")
+
+class MetaLoso(object):
+    def __init__(self, list_datasets, dir_datasets, exp_name, overlapping=0.0, time_wd=5):
+
+        self.list_datasets = list_datasets
+        self.dir_datasets = dir_datasets
+        self.time_wd = time_wd
+        self.activity = {}
+        self.label_idx = -1
+        self.subject = {}
+        self.subject_idx = -1
+        self.overlapping = overlapping
+        self.X = []
+        self.y = []
+        self.groups = []
+        self.fundamental_matrix = []
+        self.separator = '_'
+        self.idx_label = 0
+        self.idx_subject = 1
+        self.consult_label = {}
+        self.name_act = False
+        self.name_sub = False
+        self.exp_name = exp_name
+
+    def add_consult_label(self, a):
+        z = self.consult_label.copy()  # start with x's keys and values
+        z.update(a)  # modifies z with y's keys and values & returns None
+        self.consult_label = z.copy()
+
+    # Split trial in samples
+    def sw(self, trial=None, freq=None):
+        r = 0
+        delta = freq * self.time_wd
+        output = []
+
+        sample = trial
+
+        while r + delta < len(sample):
+            block = sample[r:r + delta]
+            output.append(block)
+            r = r + delta
+            r = r - (int(delta * self.overlapping))
+
+        return output
+
+    def subject_trials_and_label_generator(self, files):
+        for pkl in files:
+            with open(pkl, 'rb') as handle:
+                data = pickle.load(handle)
+                fl = [i for i in data.keys()]
+                for file in fl:
+                    idx = file.split(self.separator)[self.idx_subject]
+                    if idx not in self.subject.keys():
+                        self.subject_idx = self.subject_idx + 1
+                        self.subject[idx] = self.subject_idx
+
+                    label = file.split(self.separator)[self.idx_label]
+                    if label not in self.activity.keys():
+                        self.label_idx += 1
+                        self.activity[label] = self.label_idx
+
+        return self.subject, self.activity
+
+    def data_generator(self, files, data_name, dir_input_file, freq_data, new_freq):
+
+        print("\nAdding samples from {}".format(data_name), flush=True)
+        count = {}
+        for id_, fl in enumerate(files):
+            pkl = os.path.join(dir_input_file, data_name + '_' + str(id_) + '.pkl')
+            with open(pkl, 'rb') as handle:
+                data = pickle.load(handle)
+                fl = [i for i in data]
+                for file in fl:
+                    label_ = file.split(self.separator)[self.idx_label]
+                    if len(self.consult_label) > 0:
+                        label_ = self.consult_label[label_]
+                    subject_ = file.split("_")[self.idx_subject]
+                    label = self.activity[label_]
+                    subject_idx_ = self.subject[subject_]
+
+                    trial = np.squeeze(np.array(data[file]))
+
+                    samples = self.sw(trial=trial, freq=freq_data)
+
+                    if samples:
+                        # remove samples with NaN
+                        new_samples = []
+                        for sample in samples:
+                            array_sum = np.sum(sample)
+                            array_has_nan = np.isnan(array_sum)
+                            if not array_has_nan:
+                                new_samples.append(sample)
+                            else:
+                                if label_ not in count:
+                                    count[label_] = 1
+                                else:
+                                    count[label_] += 1
+                        samples = new_samples
+
+                        if freq_data != new_freq:
+                            type_interp = 'cubic'
+                            try:
+                                samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
+                            except:
+                                print(
+                                    '[Interpolation] Sample not used: size {}, local {}'.format(len(samples), file))
+                        else:
+                            samples = np.transpose(np.array(samples), (0, 2, 1))
+
+                        for i in range(0, len(samples)):
+                            self.X.append(np.array([samples[i]]))
+                            act_name = ''
+                            if self.name_act:
+                                act_name += data_name + '-'
+                            if self.name_sub:
+                                act_name += str(subject_idx_) + '-'
+
+                            act_name += label_
+
+                            self.y.append(act_name)
+                            self.groups.append(subject_idx_)
+                            self.fundamental_matrix[label][subject_idx_] += 1
+                    # else:
+                    #    print('[Trial crop] Sample not used: size {}, local {}'.format(len(samples), file))
+        print(f'Done. \nNumber of samples per activity removed (NaN values).')
+        for c, v in count.items():
+            print(f'{c} - {v}')
+
+    def set_name_act(self):
+        self.name_act = True
+
+    def set_name_sub(self):
+        self.name_sub = True
+
+    def remove_subject(self, code):
+        pass
+
+    def remove_action(self, code):
+        pass
+
+    def _to_categorical(self, y, nb_classes=None):
+        '''Convert class vector (integers from 0 to nb_classes)
+        to binary class matrix, for use with categorical models
+        '''
+        if not nb_classes:
+            if 0 in y:
+                nb_classes = np.max(y) + 1
+            else:
+                nb_classes = np.max(y)
+        Y = np.zeros((len(y), nb_classes))
+        for i in range(len(y)):
+            Y[i, self.activity[y[i]]] = 1.
+        return Y
+
+    def simple_generate(self, dir_save_file, new_freq=20):
+        if len(self.list_datasets) == 1:
+            name_file = '{}_f{}_t{}'.format(self.list_datasets[0].name, new_freq, self.time_wd)
+        else:
+            name_file = 'f{}_t{}_{}'.format(new_freq, self.time_wd, self.exp_name)
+
+        print("Reading pkl files...", flush=True)
+
+        files_s = {}
+        for id_, dtb in enumerate(self.list_datasets):
+            files_s[dtb.name] = []
+            input_dir = dtb.dir_save
+            files = glob.glob(os.path.join(input_dir, '*.pkl'))
+            for pkl in files:
+                if os.path.split(pkl)[-1].split('_')[0] == dtb.name:
+                    files_s[dtb.name].append(pkl)
+            self.subject_trials_and_label_generator(files_s[dtb.name])
+        print("Done.", flush=True)
+
+        # Matrix Activity (row) by Subject (col)
+        self.fundamental_matrix = np.zeros((len(self.activity), len(self.subject)))
+
+        for id_, dtb in enumerate(self.list_datasets):
+            input_dir = dtb.dir_save
+            dataset_name = dtb.name
+            self.data_generator(files_s[dataset_name], dataset_name, input_dir, dtb.freq, new_freq)
+            # self.add_consult_label(dtb.labels)
+
+        self.groups = np.array(self.groups)
+
+        self.X = np.array(self.X, dtype=float)
+        self.y = np.array(self.y)
+
+        # normalization [-0.5, 0.5]
+        for dataset in tqdm(self.list_datasets, desc='Normalizing samples'):
+            tmp = []
+            for xx, yy in zip(self.X, self.y):
+                # get all activities from a dataset
+                if dataset.name in yy:
+                    tmp.append(xx)
+            # normalize each sample from a dataset using min max calculate using tmp
+            for idx, yy in enumerate(self.y):
+                if dataset.name in yy:
+                    self.X[idx] = ((self.X[idx] - np.min(tmp)) / (np.max(tmp) - np.min(tmp))) - 0.5
+
+        np.savez_compressed(os.path.join(dir_save_file, name_file),
+                            X=self.X, y=self.y)
