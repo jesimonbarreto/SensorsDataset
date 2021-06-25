@@ -2,7 +2,7 @@ import numpy as np
 import csv, sys, glob, os
 import pandas as pd
 from enum import Enum
-from Dataset.Wisdm import Wisdm
+from Dataset.Wisdm import WISDM
 from Dataset.Wisdm import SignalsWisdm as sw
 from Dataset.Utdmhad1 import UTDMHAD1
 from Dataset.Utdmhad1 import SignalsUtdmhad1 as su
@@ -28,9 +28,9 @@ if __name__ == "__main__":
         #dir_datasets = '/home/jesimon/Documents/Project_sensors_dataset/dataset_preprocess/'
         #dir_save_file = '/home/jesimon/Documents/Project_sensors_dataset/'
         #file_pm = '/home/jesimon/Documents/others/datasets/PAMAP2_Dataset/'
-        file_p2 ='C:\\Users\\gcram\\Documents\\Dataset\\originals\\PAMAP2\\'
-        file_mh = 'C:\\Users\\gcram\\Documents\\Dataset\\originals\\MHEALTHDATASET'
-        savePath = 'C:\\Users\\gcram\\Documents\\Dataset\\frankDataset\\'
+        file_p2 ='C:\\Users\\gcram\\Documents\\Datasets\\originals\\PAMAP2\\'
+        file_mh = 'C:\\Users\\gcram\\Documents\\Datasets\\originals\\MHEALTHDATASET'
+        savePath = 'C:\\Users\\gcram\\Documents\\Datasets\\frankDataset\\'
         
     
     #Creating datasets

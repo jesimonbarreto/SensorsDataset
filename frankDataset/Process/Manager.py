@@ -2,7 +2,7 @@ import numpy as np
 import csv, sys, glob, os
 import pandas as pd
 from enum import Enum
-from Dataset.Wisdm import Wisdm
+from Dataset.Wisdm import WISDM
 from Dataset.Wisdm import SignalsWisdm as sw
 from Dataset.Utdmhad1 import UTDMHAD1
 from Dataset.Utdmhad1 import SignalsUtdmhad1 as su
