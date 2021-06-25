@@ -6,12 +6,12 @@ import numpy as np
 
 
 class SignalsUSCHAD(Enum):
-    acc_front_right_hip_X = 1
-    acc_front_right_hip_Y = 2 
-    acc_front_right_hip_Z = 3
-    gyr_front_right_hip_X = 4
-    gyr_front_right_hip_Y = 5
-    gyr_front_right_hip_Z = 6
+    acc_front_right_hip_X = 0
+    acc_front_right_hip_Y = 1
+    acc_front_right_hip_Z = 2
+    gyr_front_right_hip_X = 3
+    gyr_front_right_hip_Y = 4
+    gyr_front_right_hip_Z = 5
 
 
 actNameUSCHAD = {
@@ -76,6 +76,5 @@ class USCHAD(Dataset):
             act = act.replace("-", " ")
             act = self.fix_name_act(act)
             self.add_info_data(act, subject, trial_id, trial, self.dir_save)
-            #print('file_name:[{}] s:[{}]'.format(filepath, subject))
 
         self.save_data(self.dir_save)

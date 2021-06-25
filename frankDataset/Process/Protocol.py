@@ -270,6 +270,7 @@ class MetaLearning(object):
     def data_generator(self, files, data_name, dir_input_file, freq_data, new_freq):
 
         print("\nAdding samples from {}".format(data_name), flush=True)
+        count = {}
         for id_, fl in enumerate(files):
             pkl = os.path.join(dir_input_file, data_name + '_' + str(id_) + '.pkl')
             with open(pkl, 'rb') as handle:
@@ -288,6 +289,20 @@ class MetaLearning(object):
                     samples = self.sw(trial=trial, freq=freq_data)
 
                     if samples:
+                        # remove samples with NaN
+                        new_samples = []
+                        for sample in samples:
+                            array_sum = np.sum(sample)
+                            array_has_nan = np.isnan(array_sum)
+                            if not array_has_nan:
+                                new_samples.append(sample)
+                            else:
+                                if label_ not in count:
+                                    count[label_] = 1
+                                else:
+                                    count[label_] += 1
+                        samples = new_samples
+
                         if freq_data != new_freq:
                             type_interp = 'cubic'
                             try:
@@ -308,7 +323,9 @@ class MetaLearning(object):
                             self.fundamental_matrix[label][subject_idx_] += 1
                     #else:
                     #    print('[Trial crop] Sample not used: size {}, local {}'.format(len(samples), file))
-        print("Done")
+        print(f'Done. \nNumber of samples per activity removed (NaN values).')
+        for c, v in count.items():
+            print(f'{c} - {v}')
 
     def set_name_act(self):
         self.name_act = True
@@ -389,7 +406,13 @@ class MetaLearning(object):
         return acts, counts
 
     def remove_activities(self, n):
-        act_to_remove, counts = self.act_with_less_than_n_samples(n)
+        acts, cs = self.act_with_less_than_n_samples(n)
+        act_to_remove = []
+        counts = []
+        for i in range(len(acts)):
+            if acts[i] not in self.target_tasks:
+                act_to_remove.append(acts[i])
+                counts.append(cs[i])
 
         newXy = [[x, y] for x, y in zip(self.X, self.y) if y not in act_to_remove]
         newX = [x[0] for x in newXy]
@@ -397,7 +420,7 @@ class MetaLearning(object):
         self.X = newX
         self.y = newY
 
-        print("Activities removed because of small number of samples [act_n_samples - act_name]\n\n")
+        print("Activities removed because of small number of samples\n\n")
         if act_to_remove:
             for i in range(len(act_to_remove)):
                 print("{}-{}\n".format(act_to_remove[i], counts[i]))
@@ -410,7 +433,7 @@ class MetaLearning(object):
             name_file = '{}_f{}_t{}'.format(self.list_datasets[0].name, new_freq, self.time_wd)
         else:
 
-            name_file = 'Multi_f{}_t{}_{}'.format(new_freq, self.time_wd, self.exp_name)
+            name_file = 'f{}_t{}_{}'.format(new_freq, self.time_wd, self.exp_name)
 
         print("Reading pkl files...", flush=True)
 
@@ -436,18 +459,23 @@ class MetaLearning(object):
 
         self.groups = np.array(self.groups)
 
-        # remove activities with less than 10 samples (necessary for 5-shot meta learning)
-        self.remove_activities(50)
+        # remove activities with less than n samples (necessary for 20-shot meta learning)
+        self.remove_activities(199)
 
         self.X = np.array(self.X, dtype=float)
         self.y = np.array(self.y)
 
-        invalid_rows = []
-        for row in self.fundamental_matrix:
-            print(row)
-            check_zeros = np.where(row != 0.)
-            if check_zeros[0].shape[0] < 2:  # An activity is  performed just by one subject
-                invalid_rows.append(row)
+        # normalization [-0.5, 0.5]
+        for dataset in tqdm(self.list_datasets, desc='Normalizing samples'):
+            tmp = []
+            for xx, yy in zip(self.X, self.y):
+                # get all activities from a dataset
+                if dataset.name in yy:
+                    tmp.append(xx)
+            # normalize each sample from a dataset using min max calculate using tmp
+            for idx, yy in enumerate(self.y):
+                if dataset.name in yy:
+                    self.X[idx] = ((self.X[idx] - np.min(tmp)) / (np.max(tmp) - np.min(tmp))) - 0.5
 
         # Meta learning train and test splits for each few-shot scenario
 
@@ -469,9 +497,9 @@ class MetaLearning(object):
                             kfold_20_shot=twenty_shot_kfold,
                             kfold_no_shot=no_shot_kfold)
 
-        print('Activities performed by less than 2 subjects')
-        for row in invalid_rows:
-            print(row)
+        # print('Activities performed by less than 2 subjects')
+        # for row in invalid_rows:
+        #     print(row)
 
         print("\n\nActivities in this dataset:\n\n")
         print("Train activities:\n {}\n\n".format(np.unique(y_train)))

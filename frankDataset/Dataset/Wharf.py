@@ -49,20 +49,24 @@ class WHARF(Dataset):
         print(len(txt_files))
 
         for trial_id, filepath in enumerate(txt_files):
-            with open(filepath, 'r') as f:
-                filename = filepath.split(os.sep)[-1]
-                act, subject = filename.split('-')[-2:]
-                act = act.replace("_", " ")
-                subject = subject.replace('.txt', '')
-                trial = f.read().split()
-                trial = list(map(int, trial))
-                trial = np.array(trial).reshape(-1, 3)
-                data = []
-                for d in self.signals_use:
-                    data.append(trial[:,d.value])
-                trial = np.column_stack(data).astype('float64')
-                self.add_info_data(act, subject, trial_id, trial, self.dir_save)
-                #print('file_name:[{}] s:[{}]'.format(filepath, subject))
+            filename = filepath.split(os.sep)[-1]
+            act, subject = filename.split('-')[-2:]
+            act = act.replace("_", " ")
+            subject = subject.replace('.txt', '')
+            with open(filepath, 'r') as inp:
+                instances = [list(map(float, line.split())) for line in inp.read().splitlines()]
+
+            trial = []
+            for instance in instances:
+                trial.append(instance)
+
+            trial = np.array(trial)
+            data = []
+            for d in self.signals_use:
+                data.append(trial[:,d.value])
+            trial = np.column_stack(data).astype('float64')
+            self.add_info_data(act, subject, trial_id, trial, self.dir_save)
+            #print('file_name:[{}] s:[{}]'.format(filepath, subject))
 
         self.save_data(self.dir_save)
 

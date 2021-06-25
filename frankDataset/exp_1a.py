@@ -10,7 +10,7 @@ from Process.Manager import preprocess_datasets
 from Process.Protocol import MetaLearning
 import os
 
-from Utils.utils_metalearning import all_activities, target_task_top4, all_activities_all_datasets
+from Utils.utils_metalearning import target_task_top4, all_activities_all_datasets
 from tqdm import tqdm
 import time
 import argparse
@@ -18,7 +18,6 @@ import numpy as np
 
 
 def instanciate_dataset(datasets_list, dir_datasets):
-
     file_wisdm = '/storage/datasets/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
     file_pm = '/storage/datasets/sensors/originals/PAMAP2/'
     file_mh = '/storage/datasets/sensors/originals/MHEALTHDATASET/'
@@ -70,7 +69,7 @@ def process_datasets(datasets):
     return datasets
 
 
-def create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
+def create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
                    overlapping, time_wd, new_freq):
     # Creating Loso evaluate generating
     generate_ev = MetaLearning(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=overlapping,
@@ -79,21 +78,7 @@ def create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_
     # function to save information e data
     # files = glob.glob(dir_datasets+'*.pkl')
     print("\n--Npz generating--\n", flush=True)
-    X_train, y_train, X_val, y_val, X_test, y_test = generate_ev.simple_generate(dir_save_file, new_freq=new_freq)
-
-    all_act = all_activities_all_datasets(datasets_list)
-
-    final_act = list(np.unique(y_train))
-    final_act.extend(list(np.unique(y_val)))
-    final_act.extend(list(np.unique(y_test)))
-    final_act = np.unique(final_act)
-    diff = set(all_act).difference(set(final_act))
-
-    if len(diff):
-        print("\n\nActivities not used to make this dataset: {}\n".format(len(diff)))
-        print(diff)
-    else:
-        print("\n\nAll activities were used in this dataset:\n")
+    generate_ev.simple_generate(dir_save_file, new_freq=new_freq)
 
     print("\nNpz Done.\n", flush=True)
 
@@ -101,7 +86,7 @@ def create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--debug', action='store_true')
+    parser.add_argument('--debug', required=True, type=int)
 
     args = parser.parse_args()
 
@@ -124,12 +109,12 @@ if __name__ == "__main__":
 
     datasets_list = ['mhealth', 'wharf', 'wisdm', 'uschad', 'pamap2']
     # debug porpouses
-    #datasets_list = ['pamap2']
+    # datasets_list = ['pamap2']
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
     process_datasets(datasets)
-    
+
     for target_dataset in tqdm(datasets_list):
         print("Target dataset: {}".format(target_dataset), flush=True)
         exp_name = "1_" + target_dataset
@@ -140,10 +125,10 @@ if __name__ == "__main__":
         source_tasks = []
         source_names = ''
         for dt in source_dataset:
-            source_tasks.extend(all_activities(dt))
+            source_tasks.extend(target_task_top4(dt))
             source_names += "_{}".format(dt)
-        exp_name = "4ways_target[{}]_source[{}]_exp1_d".format(target_dataset, source_names)
-        create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
+        exp_name = "4ways_target[{}]_source[{}]_exp1_a".format(target_dataset, source_names)
+        create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
                        overlapping, time_wd, new_freq)
         end = time.time()
-        print("Time passed target dataset {} = {}".format(target_dataset, end-start), flush=True)
+        print("Time passed target dataset {} = {}".format(target_dataset, end - start), flush=True)
