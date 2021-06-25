@@ -371,7 +371,7 @@ class MetaLearning(object):
             else:
                 Xy_train[dataset_name] = [[xx], [yy]]
 
-        return Xy_train, np.array(X_test), np.array(y_test)
+        return np.array([Xy_train]), np.array(X_test), np.array(y_test)
 
     def get_n_random_sample_per_class(self, indexs, y, n_shots):
         classes = np.unique(y)
