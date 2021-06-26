@@ -5,6 +5,7 @@ from Dataset.Mhealth import MHEALTH, SignalsMHEALTH as sm
 from Dataset.Wharf import WHARF, SignalsWharf as swh
 from Dataset.Uschad import USCHAD, SignalsUSCHAD as susc
 from Dataset.Pamap2 import PAMAP2, SignalsPAMAP2 as sp
+from Utils.utils_metalearning import target_task_top4
 
 from Process.Manager import preprocess_datasets
 from Process.Protocol import MetaLoso
@@ -65,10 +66,10 @@ def process_datasets(datasets):
     return datasets
 
 
-def create_dataset(datasets, dir_save_file, dir_datasets, exp_name,
+def create_dataset(datasets, dir_save_file, dir_datasets, tasks_list, exp_name,
                    overlapping, time_wd, new_freq):
     # Creating Loso evaluate generating
-    generate_ev = MetaLoso(datasets, dir_datasets, exp_name, overlapping=overlapping,
+    generate_ev = MetaLoso(datasets, dir_datasets, tasks_list, exp_name, overlapping=overlapping,
                                time_wd=time_wd)
     generate_ev.set_name_act()
     generate_ev.set_name_sub()
@@ -110,11 +111,15 @@ if __name__ == "__main__":
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
-    process_datasets(datasets)
+    #process_datasets(datasets)
+
+    tasks_list = []
+    for dt in datasets_list:
+        tasks_list.extend(target_task_top4(dt))
 
     start = time.time()
     exp_name = "4ways_exp2_subjects"
-    create_dataset(datasets, dir_save_file, dir_datasets, exp_name,
+    create_dataset(datasets, dir_save_file, dir_datasets, tasks_list, exp_name,
                    overlapping, time_wd, new_freq)
     end = time.time()
     print("Time passed = {}".format(end - start), flush=True)

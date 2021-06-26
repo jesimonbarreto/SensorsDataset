@@ -520,7 +520,7 @@ class MetaLearning(object):
 
 
 class MetaLoso(object):
-    def __init__(self, list_datasets, dir_datasets, exp_name, overlapping=0.0, time_wd=5):
+    def __init__(self, list_datasets, dir_datasets, tasks_list, exp_name, overlapping=0.0, time_wd=5):
 
         self.list_datasets = list_datasets
         self.dir_datasets = dir_datasets
@@ -541,6 +541,7 @@ class MetaLoso(object):
         self.name_act = False
         self.name_sub = False
         self.exp_name = exp_name
+        self.tasks_list = tasks_list
 
     def add_consult_label(self, a):
         z = self.consult_label.copy()  # start with x's keys and values
@@ -704,6 +705,41 @@ class MetaLoso(object):
 
         self.X = np.array(self.X, dtype=float)
         self.y = np.array(self.y)
+
+        _X, _y = [], []
+        # filter only the most frequent activities
+        for sample, label in zip(self.X, self.y):
+            if any(label.split("-")[0] in tt for tt in self.tasks_list) and any(label.split("-")[2] in tt for tt in self.tasks_list):
+                _X.append(sample)
+                _y.append(label)
+
+        self.X = _X
+        self.y = _y
+
+        subjects_used = []
+        # verify if all subjects have the activities
+        for d in self.list_datasets:
+            tasks = [t for t in self.tasks_list if d.name in t]
+            n_subjects = sorted([int(t.split("-")[1]) for t in np.unique(self.y) if d.name in t])[-1]
+            for n in range(n_subjects):
+                n_act_sub = [t for t in np.unique(self.y) if d.name in t and '-' + str(n) + '-' in t]
+                use = True
+                for ts in tasks:
+                    if not any(ts.split("-")[-1] in tt for tt in n_act_sub):
+                        use = False
+                if use:
+                    subjects_used.append(d.name + '-' + str(n))
+
+        _X, _y = [], []
+        # filter only the most frequent activities
+        for sample, label in zip(self.X, self.y):
+            d_a = label.split("-")[0] + "-" + label.split("-")[1]
+            if d_a in subjects_used:
+                _X.append(sample)
+                _y.append(label)
+
+        self.X = _X
+        self.y = _y
 
         # normalization [-0.5, 0.5]
         for dataset in tqdm(self.list_datasets, desc='Normalizing samples'):
