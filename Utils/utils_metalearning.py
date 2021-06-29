@@ -26,6 +26,23 @@ def all_activities(dataset_name):
     return output
 
 
+def different_from_top4(dataset_name):
+    """
+    Return a list of all activities except the top4
+    from a given dataset using
+    the format "dataset-activity"
+    """
+
+    output = []
+    dataset_act = globals()['actName' + dataset_name.upper()]
+    top_4 = target_task_top4(dataset_name)
+    for act in dataset_act:
+        act_name = dataset_name + '-' + act.lower()
+        if act_name not in top_4:
+            output.append(act_name)
+    return output
+
+
 def all_activities_all_datasets(dataset_list):
     """
     Return a list of all activities
