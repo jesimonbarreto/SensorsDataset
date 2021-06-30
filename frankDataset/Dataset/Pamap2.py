@@ -67,20 +67,20 @@ actNamePAMAP2 = {
     3:  'Standing',
     4:  'Walking',
     5:  'Running',
-    6:  'cycling',
+    6:  'Cycling',
     7:  'Nordic walking',
-    9:  'watching TV',
-    10: 'computer work',
-    11: 'car driving',
-    12: 'ascending stairs',
-    13: 'descending stairs',
-    16: 'vacuum cleaning',
-    17: 'ironing',
-    18: 'folding laundry',
-    19: 'house cleaning',
-    20: 'playing soccer',
-    24: 'rope jumping',
-    0:  'other (transient activities)'
+    9:  'Watching TV',
+    10: 'Computer work',
+    11: 'Car driving',
+    12: 'Ascending stairs',
+    13: 'Descending stairs',
+    16: 'Vacuum cleaning',
+    17: 'Ironing',
+    18: 'Folding laundry',
+    19: 'House cleaning',
+    20: 'Playing soccer',
+    24: 'Rope jumping',
+    0:  'Other (transient activities)'
 }
 
 
