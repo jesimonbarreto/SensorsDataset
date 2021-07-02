@@ -65,12 +65,12 @@ if __name__ == "__main__":
     preprocess_datasets(datasets)
     
     #Creating Loso evaluate generating
-    generate_ev = Loso(datasets, overlapping = 0.5, time_wd=5)
+    generate_ev = Loso(datasets, overlapping = 0.5, time_wd=2)
     #Save name of dataset in variable y
     generate_ev.set_name_act()
     #function to save information e data
     #files = glob.glob(dir_datasets+'*.pkl')
-    generate_ev.simple_generate(savePath, new_freq = 20)
+    generate_ev.simple_generate(savePath, new_freq = 50)
     
 
 

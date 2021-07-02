@@ -38,6 +38,7 @@ class UCIHAR(Dataset):
 	def preprocess(self):
 		dataFiles = os.path.join(self.dir_dataset,'original','UCI HAR Dataset')
 		trial_id =np.zeros([30])
+		#testSub = np.zeros([30,6])
 		for part in ['train','test']:
 			data = []
 			path = os.path.join(dataFiles, part, 'Inertial Signals')
@@ -61,6 +62,7 @@ class UCIHAR(Dataset):
 				subj = subjects.iloc[i].values[0] -1
 				self.add_info_data(act, subj, trial_id[subj], trial, self.dir_save)
 				trial_id[subj] +=1
+				#testSub[subj,labels.iloc[i].values[0]-1] +=1
 		self.save_data(self.dir_save)
 
 			
