@@ -30,10 +30,12 @@ class UCIHAR(Dataset):
 	def print_info(self):
 		return "device:  smartphone (Samsung Galaxy S II)" \
 		       "frequency: 50 Hz" \
-		       "positions: waist" \
+		       "positions: body" \
 		       "sensors: accelerometer, gyroscope" \
-		       "subjects: 50" \
-		       "Age: 19-48"
+		       "subjects: 30" \
+		       "Age: 19-48" \
+		       "example: https://www.youtube.com/watch?v=XOEN9W05_4A" \
+		       "Obs: Triaxial acceleration from the accelerometer (total acceleration) and the estimated body acceleration."
 		
 	def preprocess(self):
 		dataFiles = os.path.join(self.dir_dataset,'original','UCI HAR Dataset')
