@@ -2,6 +2,8 @@ import numpy as np
 import csv, sys, glob, os
 import pandas as pd
 from enum import Enum
+from Dataset.Dsads import DSADS
+from Dataset.Dsads import SignalsDsads as sdsa
 from Dataset.Wisdm import WISDM
 from Dataset.Wisdm import SignalsWisdm as sw
 from Dataset.Utdmhad1 import UTDMHAD1
@@ -35,6 +37,7 @@ if __name__ == "__main__":
         file_p2 ='C:\\Users\\gcram\\Documents\\Smart Sense\\Datasets\\originals\\PAMAP2\\'
         file_mh = 'C:\\Users\\gcram\\Documents\\Smart Sense\\Datasets\\originals\\MHEALTHDATASET'
         file = 'C:\\Users\\gcram\\Documents\\Smart Sense\\Datasets\\originals\\uci-human-activity-recognition\\'
+        file = 'C:\\Users\\gcram\\Documents\\Smart Sense\\Datasets\\originals\\uci-daily-and-sports-activities\\'
         savePath = 'C:\\Users\\gcram\\Documents\\Smart Sense\\Datasets\\frankDataset\\'
         
     
@@ -42,10 +45,12 @@ if __name__ == "__main__":
     #name, dir_dataset, dir_save, freq = 100, trial_per_file=100000
     #w = Wisdm('Wisdm', file_wisdm, dir_datasets, freq = 20, trials_per_file = 1000000)
     #utd = UTDMHAD1('UTD1', file_utd1, dir_datasets, freq = 50, trials_per_file = 1000000)
-    p2 = PAMAP2('Pamap2', file_p2, savePath, freq = 100, trials_per_file = 10000)
+    #p2 = PAMAP2('Pamap2', file_p2, savePath, freq = 100, trials_per_file = 10000)
     #usc = USCHAD('Uschad',file_usc,savePath,freq = 100, trials_per_file = 10000)
-    mh = MHEALTH('Mhealth', file_mh, savePath, freq = 100, trials_per_file = 10000)
-    uci = UCIHAR('Ucihar',file,savePath,freq = 50,trials_per_file = 10000)
+    #mh = MHEALTH('Mhealth', file_mh, savePath, freq = 100, trials_per_file = 10000)
+    #uci = UCIHAR('Ucihar',file,savePath,freq = 50,trials_per_file = 10000)
+    dsa = DSADS('Dsads',file,savePath,freq = 25,trials_per_file = 10000)
+    
     
 
     #Define signals of each dataset
@@ -56,21 +61,23 @@ if __name__ == "__main__":
     #mh.set_signals_use(sig_mh)
     #sig_pm = [sp.acc1_dominant_wrist_X, sp.acc1_dominant_wrist_Y, sp.acc1_dominant_wrist_Z]
     #p2.set_signals_use(sig_pm)
-    uci.set_signals_use(sig_uci)
+    #uci.set_signals_use(sig_uci)
+    
+    dsa.set_signals_use(sdsa)
     
     #list datasets
-    datasets = [uci]
+    datasets = [dsa]
 
     #preprocessing
     preprocess_datasets(datasets)
     
     #Creating Loso evaluate generating
-    generate_ev = Loso(datasets, overlapping = 0.5, time_wd=2)
+    generate_ev = Loso(datasets, overlapping = 0, time_wd=5)
     #Save name of dataset in variable y
     generate_ev.set_name_act()
     #function to save information e data
     #files = glob.glob(dir_datasets+'*.pkl')
-    generate_ev.simple_generate(savePath, new_freq = 50)
+    generate_ev.simple_generate(savePath, new_freq = 25)
     
 
 
