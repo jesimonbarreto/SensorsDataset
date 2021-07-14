@@ -1,10 +1,10 @@
 from Dataset.Wisdm import Wisdm, SignalsWisdm as sw
 from Dataset.Utdmhad1 import UTDMHAD1, SignalsUtdmhad1 as su1
 from Dataset.Utdmhad2 import UTDMHAD2, SignalsUtdmhad2 as su2
-from Dataset.Mhealth import MHEALTH, SignalsMHEALTH as sm
+from Dataset.Mhealth import MHEALTH, SignalsMhealth as sm
 from Dataset.Wharf import WHARF, SignalsWharf as swh
-from Dataset.Uschad import USCHAD, SignalsUSCHAD as susc
-from Dataset.Pamap2 import PAMAP2, SignalsPAMAP2 as sp
+from Dataset.Uschad import USCHAD, SignalsUschad as susc
+from Dataset.Pamap2 import PAMAP2, SignalsPamap2 as sp
 
 from Process.Manager import preprocess_datasets
 from Process.Protocol import Loso, MetaLearning

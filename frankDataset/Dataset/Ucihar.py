@@ -4,7 +4,7 @@ import pandas as pd
 import glob, os
 from enum import Enum
 
-class SignalsUCIHAR(Enum):
+class SignalsUcihar(Enum):
 	acc_body_X = 0
 	acc_body_Y = 1
 	acc_body_Z = 2
@@ -17,7 +17,7 @@ class SignalsUCIHAR(Enum):
 	
 
 
-actNameUCIHAR = {
+actNameUcihar = {
 	1: 'Walking',
 	2: 'Ascending stairs',
 	3: 'Descending stairs',
@@ -57,7 +57,7 @@ class UCIHAR(Dataset):
 						trial = np.concatenate([trial,np.expand_dims(d.iloc[i,:].values,1)],axis = 1)
 					else:
 						trial = np.expand_dims(d.iloc[i,:].values,1)
-				act = actNameUCIHAR[labels.iloc[i].values[0]]
+				act = actNameUcihar[labels.iloc[i].values[0]]
 				signals = [signal.value for signal in self.signals_use]
 				trial = trial[:, signals]
 				subj = subjects.iloc[i].values[0] -1

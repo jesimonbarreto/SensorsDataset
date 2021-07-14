@@ -1,15 +1,15 @@
 import sys
-from Dataset.Wisdm import actNameWISDM
-from Dataset.Wharf import actNameWHARF
-from Dataset.Mhealth import actNameMHEALTH
-from Dataset.Pamap2 import actNamePAMAP2
-from Dataset.Uschad import actNameUSCHAD
+from Dataset.Wisdm import actNameWisdm
+from Dataset.Wharf import actNameWharf
+from Dataset.Mhealth import actNameMhealth
+from Dataset.Pamap2 import actNamePamap2
+from Dataset.Uschad import actNameUschad
 
-actNameWISDM = actNameWISDM.values()
-actNameWHARF = actNameWHARF.values()
-actNameMHEALTH = actNameMHEALTH.values()
-actNamePAMAP2 = actNamePAMAP2.values()
-actNameUSCHAD = actNameUSCHAD.values()
+actNameWisdm = actNameWisdm.values()
+actNameWharf = actNameWharf.values()
+actNameMhealth = actNameMhealth.values()
+actNamePamap2 = actNamePamap2.values()
+actNameUschad = actNameUschad.values()
 
 
 def all_activities(dataset_name):

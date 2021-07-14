@@ -4,7 +4,7 @@ import glob, os
 from enum import Enum
 
 
-class SignalsPAMAP2(Enum):
+class SignalsPamap2(Enum):
     timestamp = 0
     activityID = 1
     heart_rate_bpm = 2
@@ -61,7 +61,7 @@ class SignalsPAMAP2(Enum):
     orientation_dominant_ankle_4 = 53
 
 
-actNamePAMAP2 = {
+actNamePamap2 = {
     1:  'Lying',
     2:  'Sitting',
     3:  'Standing',
@@ -94,19 +94,19 @@ class PAMAP2(Dataset):
                 """
 
     def clean_data_not_used(self, sample):
-        sample[SignalsPAMAP2.heart_rate_bpm] = '0'
-        sample[SignalsPAMAP2.orientation_chest_1] = '0'
-        sample[SignalsPAMAP2.orientation_chest_2] = '0'
-        sample[SignalsPAMAP2.orientation_chest_3] = '0'
-        sample[SignalsPAMAP2.orientation_chest_4] = '0'
-        sample[SignalsPAMAP2.orientation_dominant_ankle_1] = '0'
-        sample[SignalsPAMAP2.orientation_dominant_ankle_2] = '0'
-        sample[SignalsPAMAP2.orientation_dominant_ankle_3] = '0'
-        sample[SignalsPAMAP2.orientation_dominant_ankle_4] = '0'
-        sample[SignalsPAMAP2.orientation_dominant_wrist_1] = '0'
-        sample[SignalsPAMAP2.orientation_dominant_wrist_2] = '0'
-        sample[SignalsPAMAP2.orientation_dominant_wrist_3] = '0'
-        sample[SignalsPAMAP2.orientation_dominant_wrist_4] = '0'
+        sample[SignalsPamap2.heart_rate_bpm] = '0'
+        sample[SignalsPamap2.orientation_chest_1] = '0'
+        sample[SignalsPamap2.orientation_chest_2] = '0'
+        sample[SignalsPamap2.orientation_chest_3] = '0'
+        sample[SignalsPamap2.orientation_chest_4] = '0'
+        sample[SignalsPamap2.orientation_dominant_ankle_1] = '0'
+        sample[SignalsPamap2.orientation_dominant_ankle_2] = '0'
+        sample[SignalsPamap2.orientation_dominant_ankle_3] = '0'
+        sample[SignalsPamap2.orientation_dominant_ankle_4] = '0'
+        sample[SignalsPamap2.orientation_dominant_wrist_1] = '0'
+        sample[SignalsPamap2.orientation_dominant_wrist_2] = '0'
+        sample[SignalsPamap2.orientation_dominant_wrist_3] = '0'
+        sample[SignalsPamap2.orientation_dominant_wrist_4] = '0'
         return sample
          
 
@@ -152,6 +152,6 @@ class PAMAP2(Dataset):
                         # indexes = np.sum(~np.isnan(trial), axis=1) == 54
                         # trial = trial[indexes]
 
-                        act = actNamePAMAP2[act_id]
+                        act = actNamePamap2[act_id]
                         self.add_info_data(act, subject, trial_id, trial, output_dir)
         self.save_data(output_dir)

@@ -15,7 +15,7 @@ class SignalsUtdmhad1(Enum):
     gyr_right_wrist_Z = 6
 
 
-actNameUTDMHAD1 = {
+actNameUtdmhad1 = {
         1:  'right arm swipe to the left',
         2:  'right arm swipe to the right',
         3:  'right hand wave',
@@ -65,7 +65,7 @@ class UTDMHAD1(Dataset):
             trial = np.column_stack(data)
                 
             if act in activities:
-                act_name = actNameUTDMHAD1[act]
+                act_name = actNameUtdmhad1[act]
                 #print('{} {} {}'.format(act_name, subject, trial_id))
                 self.add_info_data(act_name, subject, trial_id, trial, self.dir_save)
 

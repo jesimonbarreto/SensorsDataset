@@ -9,7 +9,7 @@ class SignalsWisdm(Enum):
 	acc_front_pants_pocket_Z = 5
 
 
-actNameWISDM = {
+actNameWisdm = {
 	1: 'Walking',
 	2: 'Jogging',
 	3: 'Upstairs',

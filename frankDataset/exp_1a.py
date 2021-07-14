@@ -1,10 +1,10 @@
 import shutil
 
 from Dataset.Wisdm import Wisdm, SignalsWisdm as sw
-from Dataset.Mhealth import MHEALTH, SignalsMHEALTH as sm
+from Dataset.Mhealth import MHEALTH, SignalsMhealth as sm
 from Dataset.Wharf import WHARF, SignalsWharf as swh
-from Dataset.Uschad import USCHAD, SignalsUSCHAD as susc
-from Dataset.Pamap2 import PAMAP2, SignalsPAMAP2 as sp
+from Dataset.Uschad import USCHAD, SignalsUschad as susc
+from Dataset.Pamap2 import PAMAP2, SignalsPamap2 as sp
 
 from Process.Manager import preprocess_datasets
 from Process.Protocol import MetaLearning

@@ -4,7 +4,7 @@ import numpy as np
 from enum import Enum
 
 
-class SignalsMHEALTH(Enum):
+class SignalsMhealth(Enum):
 	acc_chest_X = 0
 	acc_chest_Y = 1
 	acc_chest_Z = 2
@@ -30,7 +30,7 @@ class SignalsMHEALTH(Enum):
 	mag_right_lower_arm_Z = 22
 
 
-actNameMHEALTH = {
+actNameMhealth = {
 	0: 'Nothing',
 	1: 'Standing',
 	2: 'Sitting',
@@ -97,6 +97,6 @@ class MHEALTH(Dataset):
 						# indexes = np.sum(~np.isnan(trial), axis=1) == 54
 						# trial = trial[indexes]
 						
-						act = actNameMHEALTH[act_id]
+						act = actNameMhealth[act_id]
 						self.add_info_data(act, subject, trial_id, trial, output_dir)
 		self.save_data(output_dir)

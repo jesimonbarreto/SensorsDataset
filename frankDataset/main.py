@@ -11,13 +11,13 @@ from Dataset.Utdmhad1 import SignalsUtdmhad1 as su
 from Dataset.Mhealth import MHEALTH
 from Dataset.Mhealth import SignalsMHEALTH as smh
 from Dataset.Pamap2 import PAMAP2
-from Dataset.Pamap2 import SignalsPAMAP2 as sp
+from Dataset.Pamap2 import SignalsPamap2 as sp
 from Process.Manager import preprocess_datasets
 from Dataset.Cook2020 import COOK
 from Dataset.Nonsense19 import NONSENSE
 
 from Dataset.Ucihar import UCIHAR
-from Dataset.Ucihar import SignalsUCIHAR as sig_uci
+from Dataset.Ucihar import SignalsUcihar as sig_uci
 
 from Process.Protocol import Loso
 

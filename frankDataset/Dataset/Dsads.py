@@ -55,7 +55,7 @@ class SignalsDsads(Enum):
 
 	
 
-actNameDSADS = {
+actNameDsads = {
 	1:  'Sitting',
 	2:  'Standing',
 	3:  'Lying on back',
@@ -102,7 +102,7 @@ class DSADS(Dataset):
 				for trial_id,trial in enumerate(glob.glob(os.path.join(trialFile,'*.txt'))):
 					data = os.path.join(trialFile,trial)
 					trialData = np.loadtxt(data, delimiter=',')
-					act_name = actNameDSADS[np.int(act[-2:])]
+					act_name = actNameDsads[np.int(act[-2:])]
 					self.add_info_data(act_name, np.int(subj[1:]), trial_id, trialData, self.dir_save)
 	
 		self.save_data(self.dir_save)
