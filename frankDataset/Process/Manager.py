@@ -2,14 +2,7 @@ import numpy as np
 import csv, sys, glob, os
 import pandas as pd
 from enum import Enum
-from Dataset.Wisdm import Wisdm
-from Dataset.Wisdm import SignalsWisdm as sw
-from Dataset.Utdmhad1 import UTDMHAD1
-from Dataset.Utdmhad1 import SignalsUtdmhad1 as su
-from Dataset.Mhealth import MHEALTH
-from Dataset.Mhealth import SignalsMHEALTH as sm
-from Dataset.Pamap2 import PAMAP2
-from Dataset.Pamap2 import SignalsPAMAP2 as sp
+
 
 from Process.Protocol import Loso
 

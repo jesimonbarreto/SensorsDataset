@@ -5,7 +5,7 @@ from enum import Enum
 import numpy as np
 
 
-class SignalsUSCHAD(Enum):
+class SignalsUschad(Enum):
     acc_front_right_hip_X = 0
     acc_front_right_hip_Y = 1
     acc_front_right_hip_Z = 2
@@ -14,16 +14,16 @@ class SignalsUSCHAD(Enum):
     gyr_front_right_hip_Z = 5
 
 
-actNameUSCHAD = {
-    1:  'Walk Forward',
-    2:  'Walk Left',
-    3:  'Walk Right',
-    4:  'Walk Up',
-    5:  'Walk Down',
-    6:  'Run',
-    7:  'Jump',
-    8:  'Sit',
-    9:  'Stand',
+actNameUschad = {
+    1:  'Walking Forward',
+    2:  'Walking Left',
+    3:  'Walking Right',
+    4:  'Walking Up',
+    5:  'Walking Down',
+    6:  'Running',
+    7:  'Jumping',
+    8:  'Sitting',
+    9:  'Standing',
     10: 'Sleeping',
     11: 'Elevator Up',
     12: 'Elevator Down',
