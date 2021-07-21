@@ -6,6 +6,7 @@ import sys
 # insert at 1, 0 is the script path (or '' in REPL)
 sys.path.insert(1, '../')
 from Signal.Transform import interpolate_sensors
+from Utils.actTranslate import actNameVersions
 from tqdm import tqdm
 
 
@@ -27,6 +28,35 @@ class Loso(object):
         self.idx_subject = 1
         self.consult_label = {}
         self.name_act = False
+
+    def set_name_act(self):
+	    self.name_act = True
+
+    def set_act_processed(self):
+	    self.actSelected = []
+	    for dtb in self.list_datasets:
+		    aux = [v for i, v in dtb.activitiesDict.items()]
+		    self.actSelected += list(map(lambda x: x.lower(), aux))
+
+    def remove_subject(self, code):
+	    pass
+
+    def remove_action(self, selectedActivities=None, removeActivities=None):
+	    # TODO: Lidar com as variações de nome de atividades
+	    if selectedActivities:
+		    selectedActivities = list(map(lambda x: x.lower(), selectedActivities))
+		    aux = [actNameVersions[i] for  i in selectedActivities if i in actNameVersions.keys()]
+		    selectedActivities += aux
+		    self.actSelected = selectedActivities
+	    if removeActivities:
+		    removeActivities = list(map(lambda x: x.lower(), removeActivities))
+		    aux = [actNameVersions[i] for  i in removeActivities if i in actNameVersions.keys()]
+		    removeActivities += aux
+		    aux = self.actSelected
+		    self.actSelected = []
+		    for act in aux:
+			    if act not in removeActivities:
+				    self.actSelected.append(act)
 
     def add_consult_label(self, a):
         z = self.consult_label.copy()   # start with x's keys and values
@@ -64,10 +94,12 @@ class Loso(object):
             fl = [i for i in data.keys()]
             for file in fl:
                 label = file.split(self.separator)[self.idx_label]#[1:]#USCHAD
-                if label not in self.activity.keys():
+               #TODO: entender a funcionalidade do label generator
+                #isso eh de fato necessario ? poderia usar o dicionario de atividades de cada dataset...
+
+                if label not in self.activity.keys() and label in self.actSelected:
                     self.label_idx += 1
                     self.activity[label] = self.label_idx
-
         return self.activity
 
     def subject_trials(self,files):
@@ -80,7 +112,8 @@ class Loso(object):
             for file in fl:
                 idx = file.split(self.separator)[self.idx_subject]#[-2:]
                 #idx = file.split("_")[idx_subject][7:] #USCHAD
-                if idx not in self.subject.keys():
+                act = file.split(self.separator)[self.idx_label]
+                if idx not in self.subject.keys() and act in self.actSelected:
                     self.subject_idx = self.subject_idx + 1
                     self.subject[idx] = self.subject_idx
             
@@ -91,46 +124,38 @@ class Loso(object):
             pkl = os.path.join(dir_input_file, data_name+'_'+str(id_)+'.pkl')
             with open(pkl, 'rb') as handle:
                 data = pickle.load(handle)
-            fl = [i for i in data]
-            for file in fl:
+            fls = [i for i in data]
+            for file in fls:
                 label_ = file.split(self.separator)[self.idx_label]
-                if len(self.consult_label) > 0:
-                    label_ = self.consult_label[label_]
-                subject_ = file.split("_")[self.idx_subject]
-                label = self.activity[label_]
-                subject_idx_ = self.subject[subject_]
+                if label_ in self.actSelected:
+                    if len(self.consult_label) > 0:
+                        label_ = self.consult_label[label_]
+                    subject_ = file.split("_")[self.idx_subject]
+                    label = self.activity[label_]
+                    subject_idx_ = self.subject[subject_]
                 
-                trial = data[file]
-
-
-                
-                samples = self.sw(trial = trial, freq = freq_data)
-
-                if freq_data != new_freq:
-                    type_interp = 'cubic'
-                    try:
-                        samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
-                    except:
-                        print('Sample not used: size {}, local {}'.format(len(samples),file))
-                
-                for i in range(0, len(samples)):
-                    self.X.append(np.array([samples[i]]))
-                    if self.name_act:
-                        act_name = data_name+'-'+label_
-                    else:
-                        act_name = label_
-                    self.y.append(act_name)
-                    self.groups.append(subject_idx_)
-                    self.fundamental_matrix[label][subject_idx_] += 1
-
-    def set_name_act(self):
-        self.name_act = True
+                    trial = data[file]
+                    #samples = self.sw(trial = trial, freq = freq_data)
+                    samples = self.sw(trial=trial, freq = new_freq)
     
-    def remove_subject(self, code):
-        pass
+                    if freq_data != new_freq:
+                        type_interp = 'cubic'
+                        try:
+                            samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
+                        except:
+                            print('Sample not used: size {}, local {}'.format(len(samples),file))
+                    
+                    for i in range(0, len(samples)):
+                        self.X.append(np.array([samples[i]]))
+                        if self.name_act:
+                            act_name = data_name+'-'+label_
+                        else:
+                            act_name = label_
+                        self.y.append(act_name)
+                        self.groups.append(subject_idx_)
+                        self.fundamental_matrix[label][subject_idx_] += 1
 
-    def remove_action(self, code):
-        pass
+
 
     def _to_categorical(self,y, nb_classes=None):
         '''Convert class vector (integers from 0 to nb_classes)
@@ -146,13 +171,15 @@ class Loso(object):
             Y[i, self.activity[y[i]]] = 1.
         return Y
 
-    def simple_generate(self, dir_save_file, new_freq = 20):
+    def simple_generate(self, dir_save_file, new_freq = 20,MultiDatasetName = None):
+
         if len(self.list_datasets) == 1:
-            name_file = '{}_f{}_t{}'.format(self.list_datasets[0].name, new_freq, self.time_wd)
+            name_file = f'{self.list_datasets[0].name}_f{new_freq}_t{self.time_wd}'
         else:
-            name_file = 'Multi_f{}_t{}'.format(new_freq, self.time_wd)
+            name_file = f'Multi_{MultiDatasetName}f{new_freq}_t{self.time_wd}'
         files_s = {}
         for id_, dtb in enumerate(self.list_datasets):
+            
             files_s[dtb.name] = []
             input_dir = dtb.dir_save
             files = glob.glob(os.path.join(input_dir,'*.pkl'))

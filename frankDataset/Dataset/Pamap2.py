@@ -10,10 +10,10 @@ class SignalsPamap2(Enum):
     heart_rate_bpm = 2
     temp_dominant_wrist = 3
     acc1_dominant_wrist_X = 4
-    acc1_dominant_wrist_Y = 5 
+    acc1_dominant_wrist_Y = 5
     acc1_dominant_wrist_Z = 6
     acc2_dominant_wrist_X = 7
-    acc2_dominant_wrist_Y = 8 
+    acc2_dominant_wrist_Y = 8
     acc2_dominant_wrist_Z = 9
     gyr_dominant_wrist_X = 10
     gyr_dominant_wrist_Y = 11
@@ -85,73 +85,75 @@ actNamePamap2 = {
 
 
 class PAMAP2(Dataset):
-    def print_info(self):
-        return """
+	def __init__(self, name, dir_dataset, dir_save, freq = 100, trials_per_file=100000):
+		super().__init__(name, dir_dataset, dir_save, freq = freq, trials_per_file=trials_per_file)
+		self.activitiesDict = actNamePamap2
+		self.wind = None
+	def print_info(self):
+		return """
                 device: IMU
                 frequency: 100Hz
                 positions: dominant wrist, chest and dominant side's ankle
                 sensors: heart rate, temperature, acc, gyr and mag
                 """
 
-    def clean_data_not_used(self, sample):
-        sample[SignalsPamap2.heart_rate_bpm] = '0'
-        sample[SignalsPamap2.orientation_chest_1] = '0'
-        sample[SignalsPamap2.orientation_chest_2] = '0'
-        sample[SignalsPamap2.orientation_chest_3] = '0'
-        sample[SignalsPamap2.orientation_chest_4] = '0'
-        sample[SignalsPamap2.orientation_dominant_ankle_1] = '0'
-        sample[SignalsPamap2.orientation_dominant_ankle_2] = '0'
-        sample[SignalsPamap2.orientation_dominant_ankle_3] = '0'
-        sample[SignalsPamap2.orientation_dominant_ankle_4] = '0'
-        sample[SignalsPamap2.orientation_dominant_wrist_1] = '0'
-        sample[SignalsPamap2.orientation_dominant_wrist_2] = '0'
-        sample[SignalsPamap2.orientation_dominant_wrist_3] = '0'
-        sample[SignalsPamap2.orientation_dominant_wrist_4] = '0'
-        return sample
-         
+	def clean_data_not_used(self, sample):
+		sample[SignalsPamap2.heart_rate_bpm] = '0'
+		sample[SignalsPamap2.orientation_chest_1] = '0'
+		sample[SignalsPamap2.orientation_chest_2] = '0'
+		sample[SignalsPamap2.orientation_chest_3] = '0'
+		sample[SignalsPamap2.orientation_chest_4] = '0'
+		sample[SignalsPamap2.orientation_dominant_ankle_1] = '0'
+		sample[SignalsPamap2.orientation_dominant_ankle_2] = '0'
+		sample[SignalsPamap2.orientation_dominant_ankle_3] = '0'
+		sample[SignalsPamap2.orientation_dominant_ankle_4] = '0'
+		sample[SignalsPamap2.orientation_dominant_wrist_1] = '0'
+		sample[SignalsPamap2.orientation_dominant_wrist_2] = '0'
+		sample[SignalsPamap2.orientation_dominant_wrist_3] = '0'
+		sample[SignalsPamap2.orientation_dominant_wrist_4] = '0'
+		return sample
+  
 
-    def preprocess(self):
-        files = glob.glob(pathname=os.path.join(self.dir_dataset, "Optional", '*.dat'))
-        files.extend(glob.glob(pathname=os.path.join(self.dir_dataset, "Protocol",'*.dat')))
-        output_dir = self.dir_save
-
-        for f in files:
-            fmt_data = {}
-            subject = int(f[-7:-4])
-            
-            with open(f, 'r') as inp:
-                instances = [list(map(float, line.split())) for line in inp.read().splitlines()]
-            
-            cur_act = instances[0][1]
-            trial = []
-            for instance in instances:
-                act_id = int(instance[1])
-                if act_id not in fmt_data:
-                    fmt_data[act_id] = {}
-
-                if cur_act != act_id:
-                    trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
-                    fmt_data[act_id][trial_id + 1] = trial
-                    cur_act = act_id
-                    trial = []
-
-                trial.append(instance)
-
-            for act_id in fmt_data.keys():
-                if act_id != 0:
-                    for trial_id, trial in fmt_data[act_id].items():
-                        trial = np.array(trial)
-
-                        # Sort by timestamp
-                        trial = trial[trial[:, 0].argsort()]
-
-                        signals = [signal.value for signal in self.signals_use]
-                        trial = trial[:, signals]
-
-                        # Filtro de NaNs
-                        # indexes = np.sum(~np.isnan(trial), axis=1) == 54
-                        # trial = trial[indexes]
-
-                        act = actNamePamap2[act_id]
-                        self.add_info_data(act, subject, trial_id, trial, output_dir)
-        self.save_data(output_dir)
+	def preprocess(self):
+		files = glob.glob(pathname=os.path.join(self.dir_dataset, "Optional", '*.dat'))
+		files.extend(glob.glob(pathname=os.path.join(self.dir_dataset, "Protocol",'*.dat')))
+		output_dir = self.dir_save
+		for f in files:
+			fmt_data = {}
+			subject = int(f[-7:-4])
+	  
+			with open(f, 'r') as inp:
+				instances = [list(map(float, line.split())) for line in inp.read().splitlines()]
+			cur_act = instances[0][1]
+			trial = []
+			for instance in instances:
+				act_id = int(instance[1])
+				if act_id not in fmt_data:
+					fmt_data[act_id] = {}
+	
+				if cur_act != act_id:
+					trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
+					fmt_data[act_id][trial_id + 1] = trial
+					cur_act = act_id
+					trial = []
+	
+				trial.append(instance)
+	
+			for act_id in fmt_data.keys():
+				if act_id != 0:
+					for trial_id, trial in fmt_data[act_id].items():
+						trial = np.array(trial)
+		
+		                # Sort by timestamp
+						trial = trial[trial[:, 0].argsort()]
+		
+						signals = [signal.value for signal in self.signals_use]
+						trial = trial[:, signals]
+		
+		                # Filtro de NaNs
+		                # indexes = np.sum(~np.isnan(trial), axis=1) == 54
+		                # trial = trial[indexes]
+		
+						act = actNamePamap2[act_id]
+						self.add_info_data(act, subject, trial_id, trial, output_dir)
+		self.save_data(output_dir)

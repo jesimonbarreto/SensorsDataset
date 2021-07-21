@@ -79,6 +79,11 @@ actNameDsads = {
 
 
 class DSADS(Dataset):
+	def __init__(self, name, dir_dataset, dir_save, freq = 25, trials_per_file=10000):
+		super().__init__(name, dir_dataset, dir_save, freq = freq, trials_per_file=trials_per_file)
+		self.activitiesDict = actNameDsads
+		self.wind = 5
+	
 	def print_info(self):
 		return "device:  smartphone (Samsung Galaxy S II)" \
 		       "frequency: 25 Hz" \

@@ -1,7 +1,7 @@
 from .Datasets import Dataset
 import numpy as np
 import pandas as pd
-import glob, os
+import glob, os,time
 from enum import Enum
 
 class SignalsUcihar(Enum):
@@ -27,19 +27,26 @@ actNameUcihar = {
 }
 
 class UCIHAR(Dataset):
+	def __init__(self, name, dir_dataset, dir_save, freq = 50, trials_per_file=10000):
+		super().__init__(name, dir_dataset, dir_save, freq = freq, trials_per_file=trials_per_file)
+		self.activitiesDict = actNameUcihar
+		self.wind = 2.56
+		
+
 	def print_info(self):
 		return "device:  smartphone (Samsung Galaxy S II)" \
-		       "frequency: 50 Hz" \
-		       "positions: body" \
-		       "sensors: accelerometer, gyroscope" \
-		       "subjects: 30" \
-		       "Age: 19-48" \
-		       "example: https://www.youtube.com/watch?v=XOEN9W05_4A" \
-		       "Obs: Triaxial acceleration from the accelerometer (total acceleration) and the estimated body acceleration."
+			   "frequency: 50 Hz" \
+			   "positions: body" \
+			   "sensors: accelerometer, gyroscope" \
+			   "subjects: 30" \
+			   "Age: 19-48" \
+			   "example: https://www.youtube.com/watch?v=XOEN9W05_4A" \
+			   "Obs: Triaxial acceleration from the accelerometer (total acceleration) and the estimated body acceleration."
 		
 	def preprocess(self):
+		start = time.time()
 		dataFiles = os.path.join(self.dir_dataset,'original','UCI HAR Dataset')
-		trial_id =np.zeros([30])
+		trial_id =np.ones([30]).astype(int)
 		for part in ['train','test']:
 			data = []
 			path = os.path.join(dataFiles, part, 'Inertial Signals')
@@ -64,6 +71,8 @@ class UCIHAR(Dataset):
 				self.add_info_data(act, subj, trial_id[subj], trial, self.dir_save)
 				trial_id[subj] +=1
 		self.save_data(self.dir_save)
+		end = time.time()
+		self.preprocessTime = end - start
 
 			
 

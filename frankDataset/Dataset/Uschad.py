@@ -31,6 +31,10 @@ actNameUschad = {
 
 
 class USCHAD(Dataset):
+    def __init__(self, name, dir_dataset, dir_save, freq = 100, trials_per_file=100000):
+        super().__init__(name, dir_dataset, dir_save, freq = freq, trials_per_file=trials_per_file)
+        self.activitiesDict = actNameUschad
+        self.wind = None
     def print_info(self):
         return """
                 device: IMU
