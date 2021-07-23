@@ -225,7 +225,7 @@ class Loso(object):
             #self.y = _to_categorical(y_names, len(self.activity))
             np.savez_compressed(os.path.join(dir_save_file,name_file), X=self.X, y=self.y, folds=folds)
         
-            print('Activities performed by less than 2 subjects')
+            print('Activities performed by less than 2 subjects:')
             for row in invalid_rows:
                 print(row)
         except:

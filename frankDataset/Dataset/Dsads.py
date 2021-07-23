@@ -107,10 +107,10 @@ class DSADS(Dataset):
 				for trial_id,trial in enumerate(glob.glob(os.path.join(trialFile,'*.txt'))):
 					data = os.path.join(trialFile,trial)
 					trialData = np.loadtxt(data, delimiter=',')
+					data = []
+					for d in self.signals_use:
+						data.append(trialData[:, d.value])
+					data = np.transpose(np.array(data).astype('float64') , (1, 0))
 					act_name = actNameDsads[np.int(act[-2:])]
-					self.add_info_data(act_name, np.int(subj[1:]), trial_id, trialData, self.dir_save)
-	
+					self.add_info_data(act_name, np.int(subj[1:]), trial_id, data, self.dir_save)
 		self.save_data(self.dir_save)
-				
-		
-		

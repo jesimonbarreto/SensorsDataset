@@ -88,7 +88,7 @@ class PAMAP2(Dataset):
 	def __init__(self, name, dir_dataset, dir_save, freq = 100, trials_per_file=100000):
 		super().__init__(name, dir_dataset, dir_save, freq = freq, trials_per_file=trials_per_file)
 		self.activitiesDict = actNamePamap2
-		self.wind = None
+		self.wind = 2
 	def print_info(self):
 		return """
                 device: IMU

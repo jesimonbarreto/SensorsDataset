@@ -78,7 +78,7 @@ class USCHAD(Dataset):
                 data.append(trial_data[:, d.value])
             trial = np.column_stack(data).astype('float64')
             act = act.replace("-", " ")
-            act = self.fix_name_act(act)
+            #act = self.fix_name_act(act)
             self.add_info_data(act, subject, trial_id, trial, self.dir_save)
 
         self.save_data(self.dir_save)
