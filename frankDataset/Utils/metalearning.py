@@ -92,5 +92,5 @@ def target_task_top4(dataset_name):
     return output
 
 
-if __name__ == '__main__':
-    print(all_activities('uschad'))
+# if __name__ == '__main__':
+#     print(all_activities('uschad'))

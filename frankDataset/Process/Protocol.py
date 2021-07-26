@@ -4,7 +4,7 @@ import os, pickle,glob
 from sklearn.model_selection import LeaveOneGroupOut, StratifiedKFold, train_test_split
 import sys
 # insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(1, '../')
+sys.path.insert(0, '../')
 from Signal.Transform import interpolate_sensors
 from Utils.actTranslate import actNameVersions
 from tqdm import tqdm
