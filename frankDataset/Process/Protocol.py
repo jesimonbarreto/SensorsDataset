@@ -120,6 +120,7 @@ class Loso(object):
         return self.subject
 
     def data_generator(self, files, data_name, dir_input_file, freq_data, new_freq):
+        count = {}
         for id_, fl in enumerate(files):
             pkl = os.path.join(dir_input_file, data_name+'_'+str(id_)+'.pkl')
             with open(pkl, 'rb') as handle:
@@ -135,16 +136,27 @@ class Loso(object):
                     subject_idx_ = self.subject[subject_]
                 
                     trial = data[file]
-                    #samples = self.sw(trial = trial, freq = freq_data)
-                    samples = self.sw(trial=trial, freq = new_freq)
-    
+                    samples = self.sw(trial = trial, freq = freq_data)
                     if freq_data != new_freq:
                         type_interp = 'cubic'
                         try:
                             samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
                         except:
                             print('Sample not used: size {}, local {}'.format(len(samples),file))
-                    
+                    if samples:
+                        # remove samples with NaN
+                        new_samples = []
+                        for sample in samples:
+                            array_sum = np.sum(sample)
+                            array_has_nan = np.isnan(array_sum)
+                            if not array_has_nan:
+                                new_samples.append(sample)
+                            else:
+                                if label_ not in count:
+                                    count[label_] = 1
+                                else:
+                                    count[label_] += 1
+                        samples = new_samples
                     for i in range(0, len(samples)):
                         self.X.append(np.array([samples[i]]))
                         if self.name_act:
@@ -222,7 +234,7 @@ class Loso(object):
 
             self.X = np.array(self.X)
             y_names = np.array(self.y)
-            #self.y = _to_categorical(y_names, len(self.activity))
+            #y_categorical = _to_categorical(y_names, len(self.activity))
             np.savez_compressed(os.path.join(dir_save_file,name_file), X=self.X, y=self.y, folds=folds)
         
             print('Activities performed by less than 2 subjects:')
@@ -317,6 +329,12 @@ class MetaLearning(object):
                     samples = self.sw(trial=trial, freq=freq_data)
 
                     if samples:
+                        if freq_data != new_freq:
+                            type_interp = 'cubic'
+                            try:
+                                samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
+                            except:
+                                print('[Interpolation] Sample not used: size {}, local {}'.format(len(samples), file))
                         # remove samples with NaN
                         new_samples = []
                         for sample in samples:
@@ -330,15 +348,6 @@ class MetaLearning(object):
                                 else:
                                     count[label_] += 1
                         samples = new_samples
-
-                        if freq_data != new_freq:
-                            type_interp = 'cubic'
-                            try:
-                                samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
-                            except:
-                                print('[Interpolation] Sample not used: size {}, local {}'.format(len(samples), file))
-                        else:
-                            samples = np.transpose(np.array(samples),(0, 2, 1))
 
                         for i in range(0, len(samples)):
                             self.X.append(np.array([samples[i]]))
@@ -631,6 +640,13 @@ class MetaLoso(object):
                     samples = self.sw(trial=trial, freq=freq_data)
 
                     if samples:
+                        if freq_data != new_freq:
+                            type_interp = 'cubic'
+                            try:
+                                samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
+                            except:
+                                print(
+                                    '[Interpolation] Sample not used: size {}, local {}'.format(len(samples), file))
                         # remove samples with NaN
                         new_samples = []
                         for sample in samples:
@@ -644,17 +660,6 @@ class MetaLoso(object):
                                 else:
                                     count[label_] += 1
                         samples = new_samples
-
-                        if freq_data != new_freq:
-                            type_interp = 'cubic'
-                            try:
-                                samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
-                            except:
-                                print(
-                                    '[Interpolation] Sample not used: size {}, local {}'.format(len(samples), file))
-                        else:
-                            samples = np.transpose(np.array(samples), (0, 2, 1))
-
                         for i in range(0, len(samples)):
                             self.X.append(np.array([samples[i]]))
                             act_name = ''

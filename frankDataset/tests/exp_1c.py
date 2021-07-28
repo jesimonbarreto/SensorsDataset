@@ -84,6 +84,10 @@ def create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_
 
 
 if __name__ == "__main__":
+	
+	#TODO:
+	# Endenteder o que esse codigo faz
+	#
 
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--debug', action='store_true')
