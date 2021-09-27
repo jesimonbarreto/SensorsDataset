@@ -92,5 +92,12 @@ def target_task_top4(dataset_name):
     return output
 
 
+def target_task_health(dataset_name):
+    """
+       TODO: Create a target_task_health function using the activities siting, lying down, standing, walking ...
+       from a given dataset using the format "dataset-activity"
+
+    """
+
 if __name__ == '__main__':
     print(all_activities('uschad'))
