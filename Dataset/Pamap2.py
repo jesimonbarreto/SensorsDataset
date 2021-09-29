@@ -109,6 +109,14 @@ class PAMAP2(Dataset):
         sample[SignalsPAMAP2.orientation_dominant_wrist_4] = '0'
         return sample
          
+    def rename_act(self, act):
+        act = act.lower()
+        if act == 'ascending stairs':
+            return 'upstairs'
+        if act == 'descending stairs':
+            return 'downstairs'
+        else:
+            return act
 
     def preprocess(self):
         files = glob.glob(pathname=os.path.join(self.dir_dataset, "Optional", '*.dat'))
@@ -153,5 +161,6 @@ class PAMAP2(Dataset):
                         # trial = trial[indexes]
 
                         act = actNamePAMAP2[act_id]
+                        act = self.rename_act(act)
                         self.add_info_data(act, subject, trial_id, trial, output_dir)
         self.save_data(output_dir)

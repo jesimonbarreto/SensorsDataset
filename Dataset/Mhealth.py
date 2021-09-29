@@ -56,6 +56,15 @@ class MHEALTH(Dataset):
                 sensors:acc, gyr, mag, eletrocardiogram
                 """
 
+    def rename_act(self, act):
+        act = act.lower()
+        if act == 'climbing stairs':
+            return 'upstairs'
+        if act == 'lying down':
+            return 'lying'
+        else:
+            return act
+
     def preprocess(self):
         files = glob.glob(os.path.join(self.dir_dataset,'*.log')) #glob.glob(pathname='*.log')
         output_dir = self.dir_save  #'../output'
@@ -98,5 +107,6 @@ class MHEALTH(Dataset):
                         # trial = trial[indexes]
 
                         act = actNameMHEALTH[act_id]
+                        act = self.rename_act(act)
                         self.add_info_data(act, subject, trial_id, trial, output_dir)
         self.save_data(output_dir)

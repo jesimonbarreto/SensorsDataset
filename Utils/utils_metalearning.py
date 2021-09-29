@@ -66,6 +66,22 @@ def target_task_top4(dataset_name):
 
     """
     output = []
+
+    acts = ['walking', 'upstairs', 'sitting', 'standing']
+    for act in acts:
+        output.append(dataset_name + '-' + act.lower())
+
+    return output
+
+
+def target_task_top4_original(dataset_name):
+    """
+       Return a list with the names of the top4 most common activities
+       walking, upstairs, sitting, standing
+       from a given dataset using the format "dataset-activity"
+
+    """
+    output = []
     if dataset_name.upper() == 'MHEALTH':
         acts = ['Walking', 'Climbing stairs', 'Sitting', 'Standing']
         for act in acts:

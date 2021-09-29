@@ -364,10 +364,13 @@ class MetaLearning(object):
         for sample, label in zip(self.X, self.y):
             if label in self.source_tasks:
                 _X_train.append(sample)
+                label = "meta-" + label.split("-")[1]
                 _y_train.append(label)
             elif label in self.target_tasks:
                 X_test.append(sample)
+                label = "meta-" + label.split("-")[1]
                 y_test.append(label)
+
 
         # divide training per dataset
         Xy_train = {}
@@ -476,22 +479,31 @@ class MetaLearning(object):
         self.groups = np.array(self.groups)
 
         # remove activities with less than n samples (necessary for 20-shot meta learning)
-        self.remove_activities(199)
+        self.remove_activities(40)
 
         self.X = np.array(self.X, dtype=float)
         self.y = np.array(self.y)
 
+        tmp_datasets = {}
+        new_X = []
+        new_y = []
+
         # normalization [-0.5, 0.5]
-        for dataset in tqdm(self.list_datasets, desc='Normalizing samples'):
-            tmp = []
-            for xx, yy in zip(self.X, self.y):
-                # get all activities from a dataset
-                if dataset.name in yy:
-                    tmp.append(xx)
-            # normalize each sample from a dataset using min max calculate using tmp
-            for idx, yy in enumerate(self.y):
-                if dataset.name in yy:
-                    self.X[idx] = ((self.X[idx] - np.min(tmp)) / (np.max(tmp) - np.min(tmp))) - 0.5
+        for xx, yy in zip(self.X, self.y):
+            d_name = yy.split("-")[0]
+            # get all activities from a dataset
+            if d_name not in tmp_datasets:
+                tmp_datasets[d_name] = [[xx], [yy]]
+            else:
+                tmp_datasets[d_name][0].append(xx)
+                tmp_datasets[d_name][1].append(yy)
+
+        for v in tmp_datasets.values():
+            new_X.extend(((v[0] - np.min(v[0])) / (np.max(v[0]) - np.min(v[0]))) - 0.5)
+            new_y.extend(v[1])
+
+        self.X = new_X
+        self.y = new_y
 
         # Meta learning train and test splits for each few-shot scenario
 
@@ -672,6 +684,39 @@ class MetaLoso(object):
         for i in range(len(y)):
             Y[i, self.activity[y[i]]] = 1.
         return Y
+        
+    def act_with_less_than_n_samples(self, n):
+        acts = []
+        counts = []
+        act_name, count = np.unique(self.y, return_counts=True)
+        for a, c in zip(act_name, count):
+            if c <= n:
+                acts.append(a)
+                counts.append(c)
+
+        return acts, counts
+        
+    def remove_activities(self, n):
+        acts, cs = self.act_with_less_than_n_samples(n)
+        act_to_remove = []
+        counts = []
+        for i in range(len(acts)):
+            act_to_remove.append(acts[i])
+            counts.append(cs[i])
+
+        newXy = [[x, y] for x, y in zip(self.X, self.y) if y not in act_to_remove]
+        newX = [x[0] for x in newXy]
+        newY = [x[1] for x in newXy]
+        self.X = newX
+        self.y = newY
+
+        print("Activities removed because of small number of samples\n\n")
+        if act_to_remove:
+            for i in range(len(act_to_remove)):
+                print("{}-{}\n".format(act_to_remove[i], counts[i]))
+        else:
+            print("None")
+        print("\n")
 
     def simple_generate(self, dir_save_file, new_freq=20):
         if len(self.list_datasets) == 1:
@@ -716,6 +761,8 @@ class MetaLoso(object):
         self.X = _X
         self.y = _y
 
+        self.remove_activities(9)
+        
         subjects_used = []
         # verify if all subjects have the activities
         for d in self.list_datasets:
@@ -731,7 +778,7 @@ class MetaLoso(object):
                     subjects_used.append(d.name + '-' + str(n))
 
         _X, _y = [], []
-        # filter only the most frequent activities
+        # filter subjects
         for sample, label in zip(self.X, self.y):
             d_a = label.split("-")[0] + "-" + label.split("-")[1]
             if d_a in subjects_used:
@@ -741,17 +788,26 @@ class MetaLoso(object):
         self.X = _X
         self.y = _y
 
+        tmp_datasets = {}
+        new_X = []
+        new_y = []
+
         # normalization [-0.5, 0.5]
-        for dataset in tqdm(self.list_datasets, desc='Normalizing samples'):
-            tmp = []
-            for xx, yy in zip(self.X, self.y):
-                # get all activities from a dataset
-                if dataset.name in yy:
-                    tmp.append(xx)
-            # normalize each sample from a dataset using min max calculate using tmp
-            for idx, yy in enumerate(self.y):
-                if dataset.name in yy:
-                    self.X[idx] = ((self.X[idx] - np.min(tmp)) / (np.max(tmp) - np.min(tmp))) - 0.5
+        for xx, yy in zip(self.X, self.y):
+            d_name = yy.split("-")[0]
+            # get all activities from a dataset
+            if d_name not in tmp_datasets:
+                tmp_datasets[d_name] = [[xx], [yy]]
+            else:
+                tmp_datasets[d_name][0].append(xx)
+                tmp_datasets[d_name][1].append(yy)
+
+        for v in tmp_datasets.values():
+            new_X.extend(((v[0] - np.min(v[0])) / (np.max(v[0]) - np.min(v[0]))) - 0.5)
+            new_y.extend(v[1])
+
+        self.X = new_X
+        self.y = new_y
 
         np.savez_compressed(os.path.join(dir_save_file, name_file),
                             X=self.X, y=self.y)
