@@ -367,11 +367,11 @@ class MetaLearning(object):
         for sample, label in zip(self.X, self.y):
             if label in self.source_tasks:
                 _X_train.append(sample)
-                label = "meta-" + label.split("-")[1]
+                #label = "meta-" + label.split("-")[1]
                 _y_train.append(label)
             elif label in self.target_tasks:
                 X_test.append(sample)
-                label = "meta-" + label.split("-")[1]
+                #label = "meta-" + label.split("-")[1]
                 y_test.append(label)
 
 
@@ -482,7 +482,7 @@ class MetaLearning(object):
         self.groups = np.array(self.groups)
 
         # remove activities with less than n samples (necessary for 20-shot meta learning)
-        self.remove_activities(40)
+        #self.remove_activities(40)
 
         self.X = np.array(self.X, dtype=float)
         self.y = np.array(self.y)
