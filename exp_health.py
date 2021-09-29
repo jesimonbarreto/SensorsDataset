@@ -104,8 +104,8 @@ if __name__ == "__main__":
         pydevd_pycharm.settrace('172.22.100.3', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
 
     if platform == 'win32':
-        dir_datasets = 'C:/Users/jsenadesouza/Documents/Research/Residuals/results/dataset_preprocess/'
-        dir_save_file = 'C:/Users/jsenadesouza/Documents/Research/Residuals/results/'
+        dir_datasets = 'C:/Users/jsenadesouza/Documents/Research/Residuals/dataset_preprocess/'
+        dir_save_file = 'C:/Users/jsenadesouza/Documents/Research/Residuals/'
     else:
         dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
         dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/'

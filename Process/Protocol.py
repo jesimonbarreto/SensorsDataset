@@ -615,7 +615,7 @@ class MetaLearningICU(object):
 
                     # Filter by source tasks and target tasks
                     dataset_act = data_name + "-" + label_
-                    if dataset_act in self.source_tasks or label in self.target_tasks:
+                    if dataset_act in self.source_tasks or dataset_act in self.target_tasks:
                         trial = np.squeeze(np.array(data[file]))
 
                         samples = self.sw(trial=trial, freq=freq_data)
@@ -852,7 +852,6 @@ class MetaLearningICU(object):
                             kfold_1_shot=one_shot_kfold,
                             kfold_5_shot=five_shot_kfold,
                             kfold_10_shot=ten_shot_kfold,
-                            kfold_20_shot=twenty_shot_kfold,
                             kfold_no_shot=no_shot_kfold)
 
         # print('Activities performed by less than 2 subjects')
