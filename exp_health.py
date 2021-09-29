@@ -15,14 +15,22 @@ from tqdm import tqdm
 import time
 import argparse
 import numpy as np
+from sys import platform
 
 
 def instanciate_dataset(datasets_list, dir_datasets):
-    file_wisdm = '/storage/datasets/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
-    file_pm = '/storage/datasets/sensors/originals/PAMAP2/'
-    file_mh = '/storage/datasets/sensors/originals/MHEALTHDATASET/'
-    file_wharf = '/storage/datasets/sensors/originals/WHARF/WHARF Data Set/Data/'
-    file_uschad = '/storage/datasets/sensors/originals/USC-HAD'
+    if platform == 'win32':
+        file_wisdm = 'Z:/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
+        file_pm = 'Z:/sensors/originals/PAMAP2/'
+        file_mh = 'Z:/sensors/originals/MHEALTHDATASET/'
+        file_wharf = 'Z:/sensors/originals/WHARF/WHARF Data Set/Data/'
+        file_uschad = 'Z:/sensors/originals/USC-HAD'
+    else:
+        file_wisdm = '/storage/datasets/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
+        file_pm = '/storage/datasets/sensors/originals/PAMAP2/'
+        file_mh = '/storage/datasets/sensors/originals/MHEALTHDATASET/'
+        file_wharf = '/storage/datasets/sensors/originals/WHARF/WHARF Data Set/Data/'
+        file_uschad = '/storage/datasets/sensors/originals/USC-HAD'
 
     datasets = []
     # Creating datasets
@@ -95,8 +103,12 @@ if __name__ == "__main__":
 
         pydevd_pycharm.settrace('172.22.100.3', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
 
-    dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
-    dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/'
+    if platform == 'win32':
+        dir_datasets = 'C:/Users/jsenadesouza/Documents/Research/Residuals/results/dataset_preprocess/'
+        dir_save_file = 'C:/Users/jsenadesouza/Documents/Research/Residuals/results/'
+    else:
+        dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
+        dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/'
 
     overlapping = 0
     time_wd = 5

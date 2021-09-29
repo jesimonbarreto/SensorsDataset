@@ -737,6 +737,7 @@ class MetaLearningICU(object):
     def get_k_fold(self, X, y, n_shots, n_folds):
         fold = []
         rskf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
+        print(f"Size x: {X.shape}, shape y: {y.shape}")
         for train_index, test_index in rskf.split(X, y):
             if n_shots != -1:  # get only  k-shots from train
                 train_index = self.get_n_random_sample_per_class(train_index, y, n_shots)
@@ -840,10 +841,10 @@ class MetaLearningICU(object):
 
         Xy_train, X_test, y_test = self.split_data()
 
-        one_shot_kfold = self.get_k_fold(X_test, y_test, 1, 3)
-        #five_shot_kfold = self.get_k_fold(X_test, y_test, 5, 3)
-        #ten_shot_kfold = self.get_k_fold(X_test, y_test, 10, 3)
-        no_shot_kfold = self.get_k_fold(X_test, y_test, -1, 3)
+        one_shot_kfold = self.get_k_fold(X_test, y_test, 1, 5)
+        five_shot_kfold = self.get_k_fold(X_test, y_test, 5, 5)
+        ten_shot_kfold = self.get_k_fold(X_test, y_test, 10, 5)
+        no_shot_kfold = self.get_k_fold(X_test, y_test, -1, 5)
 
         np.savez_compressed(os.path.join(dir_save_file, name_file + "_FSL"),
                             Xy_train=Xy_train,
