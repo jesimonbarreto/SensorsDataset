@@ -285,49 +285,52 @@ class MetaLearning(object):
                     label = self.activity[label_]
                     subject_idx_ = self.subject[subject_]
 
-                    trial = np.squeeze(np.array(data[file]))
+                    # Filter by source tasks and target tasks
+                    dataset_act = data_name + "-" + label_
+                    if dataset_act in self.source_tasks or label in self.target_tasks:
+                        trial = np.squeeze(np.array(data[file]))
 
-                    samples = self.sw(trial=trial, freq=freq_data)
+                        samples = self.sw(trial=trial, freq=freq_data)
 
-                    if samples:
-                        # remove samples with NaN
-                        new_samples = []
-                        for sample in samples:
-                            array_sum = np.sum(sample)
-                            array_has_nan = np.isnan(array_sum)
-                            if not array_has_nan:
-                                new_samples.append(sample)
-                            else:
-                                if label_ not in count:
-                                    count[label_] = 1
+                        if samples:
+                            # remove samples with NaN
+                            new_samples = []
+                            for sample in samples:
+                                array_sum = np.sum(sample)
+                                array_has_nan = np.isnan(array_sum)
+                                if not array_has_nan:
+                                    new_samples.append(sample)
                                 else:
-                                    count[label_] += 1
-                        samples = new_samples
+                                    if label_ not in count:
+                                        count[label_] = 1
+                                    else:
+                                        count[label_] += 1
+                            samples = new_samples
 
-                        if freq_data != new_freq:
-                            type_interp = 'cubic'
-                            try:
-                                samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
-                            except:
-                                print('[Interpolation] Sample not used: size {}, local {}'.format(len(samples), file))
-                        else:
-                            samples = np.transpose(np.array(samples),(0, 2, 1))
+                            if freq_data != new_freq:
+                                type_interp = 'cubic'
+                                try:
+                                    samples = interpolate_sensors(samples, type_interp, new_freq * self.time_wd)
+                                except:
+                                    print('[Interpolation] Sample not used: size {}, local {}'.format(len(samples), file))
+                            else:
+                                samples = np.transpose(np.array(samples),(0, 2, 1))
 
-                        for i in range(0, len(samples)):
-                            self.X.append(np.array([samples[i]]))
-                            act_name = ''
-                            if self.name_act:
-                                act_name += data_name + '-'
-                            if self.name_sub:
-                                act_name += subject_idx_ + '-'
+                            for i in range(0, len(samples)):
+                                self.X.append(np.array([samples[i]]))
+                                act_name = ''
+                                if self.name_act:
+                                    act_name += data_name + '-'
+                                if self.name_sub:
+                                    act_name += subject_idx_ + '-'
 
-                            act_name += label_
+                                act_name += label_
 
-                            self.y.append(act_name)
-                            self.groups.append(subject_idx_)
-                            self.fundamental_matrix[label][subject_idx_] += 1
-                    #else:
-                    #    print('[Trial crop] Sample not used: size {}, local {}'.format(len(samples), file))
+                                self.y.append(act_name)
+                                self.groups.append(subject_idx_)
+                                self.fundamental_matrix[label][subject_idx_] += 1
+                        #else:
+                        #    print('[Trial crop] Sample not used: size {}, local {}'.format(len(samples), file))
         print(f'Done. \nNumber of samples per activity removed (NaN values).')
         for c, v in count.items():
             print(f'{c} - {v}')
@@ -476,7 +479,7 @@ class MetaLearning(object):
         self.groups = np.array(self.groups)
 
         # remove activities with less than n samples (necessary for 20-shot meta learning)
-        self.remove_activities(199)
+        #self.remove_activities(199)
 
         self.X = np.array(self.X, dtype=float)
         self.y = np.array(self.y)

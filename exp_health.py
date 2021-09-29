@@ -107,9 +107,9 @@ if __name__ == "__main__":
     if not os.path.exists(dir_save_file):
         os.makedirs(dir_save_file)
 
-    #datasets_list = ['mhealth', 'wharf', 'wisdm', 'uschad', 'pamap2']
+    datasets_list = ['mhealth', 'wharf', 'wisdm', 'uschad', 'pamap2']
     # debug porpouses
-    datasets_list = ['wisdm', 'wharf']
+    #datasets_list = ['wisdm', 'wharf']
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
