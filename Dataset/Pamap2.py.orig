@@ -1,0 +1,161 @@
+from .Datasets import Dataset
+import numpy as np
+import glob, os
+from enum import Enum
+
+class SignalsPAMAP2(Enum):
+    timestamp                    = 0
+    activityID                   = 1
+    heart_rate_bpm               = 2
+    temp_dominant_wrist          = 3
+    acc1_dominant_wrist_X        = 4
+    acc1_dominant_wrist_Y        = 5 
+    acc1_dominant_wrist_Z        = 6
+    acc2_dominant_wrist_X        = 7
+    acc2_dominant_wrist_Y        = 8 
+    acc2_dominant_wrist_Z        = 9
+    gyr_dominant_wrist_X         = 10
+    gyr_dominant_wrist_Y         = 11
+    gyr_dominant_wrist_Z         = 12
+    mag_dominant_wrist_X         = 13
+    mag_dominant_wrist_Y         = 14
+    mag_dominant_wrist_Z         = 15
+    orientation_dominant_wrist_1 = 16
+    orientation_dominant_wrist_2 = 17
+    orientation_dominant_wrist_3 = 18
+    orientation_dominant_wrist_4 = 19
+    temp_chest                   = 20
+    acc1_chest_X                 = 21
+    acc1_chest_Y                 = 22 
+    acc1_chest_Z                 = 23
+    acc2_chest_X                 = 24
+    acc2_chest_Y                 = 25 
+    acc2_chest_Z                 = 26
+    gyr_chest_X                  = 27
+    gyr_chest_Y                  = 28
+    gyr_chest_Z                  = 29
+    mag_chest_X                  = 30
+    mag_chest_Y                  = 31
+    mag_chest_Z                  = 32
+    orientation_chest_1          = 33
+    orientation_chest_2          = 34
+    orientation_chest_3          = 35
+    orientation_chest_4          = 36
+    temp_dominant_ankle          = 37
+    acc1_dominant_ankle_X        = 38
+    acc1_dominant_ankle_Y        = 39 
+    acc1_dominant_ankle_Z        = 40
+    acc2_dominant_ankle_X        = 41
+    acc2_dominant_ankle_Y        = 42 
+    acc2_dominant_ankle_Z        = 43
+    gyr_dominant_ankle_X         = 44
+    gyr_dominant_ankle_Y         = 45
+    gyr_dominant_ankle_Z         = 46
+    mag_dominant_ankle_X         = 47
+    mag_dominant_ankle_Y         = 48
+    mag_dominant_ankle_Z         = 49
+    orientation_dominant_ankle_1 = 50
+    orientation_dominant_ankle_2 = 51
+    orientation_dominant_ankle_3 = 52
+    orientation_dominant_ankle_4 = 53
+
+
+actNamePAMAP2 = {
+    1:  'Lying',
+    2:  'Sitting',
+    3:  'Standing',
+    4:  'Walking',
+    5:  'Running',
+    6:  'cycling',
+    7:  'Nordic walking',
+    9:  'watching TV',
+    10: 'computer work',
+    11: 'car driving',
+    12: 'ascending stairs',
+    13: 'descending stairs',
+    16: 'vacuum cleaning',
+    17: 'ironing',
+    18: 'folding laundry',
+    19: 'house cleaning',
+    20: 'playing soccer',
+    24: 'rope jumping',
+    0:  'other (transient activities)'
+}
+
+
+class PAMAP2(Dataset):
+    def print_info(self):
+        return """
+               device: IMU
+               frequency: 100Hz
+               positions: dominant wrist, chest and dominant side's ankle
+               sensors: heart rate, temperature, acc, gyr and mag
+               """
+         
+    def preprocess(self):
+        files = glob.glob(pathname=os.path.join(self.dir_dataset, "Optional", '*.dat'))
+        files.extend(glob.glob(pathname=os.path.join(self.dir_dataset, "Protocol",'*.dat')))
+        output_dir = self.dir_save
+
+        for f in files:
+            fmt_data = {}
+            subject = int(f.split(os.sep)[-1][-7:-4])
+            
+            with open(f, 'r') as inp:
+                instances = [list(map(float, line.split)) for line in inp.read().splitlines()]
+            
+<<<<<<< HEAD
+            for instance in instances:
+                act_id = int(instance[1])
+                if act_id not in fmt_data:
+                    fmt_data[act_id] = []
+                fmt_data[act_id].append(instance)
+
+            for trial_id, act_id in enumerate(fmt_data.keys()):
+                fmt_data[act_id] = np.array(fmt_data[act_id])
+                
+                # Sort by timestamp
+                fmt_data[act_id] = fmt_data[act_id][fmt_data[act_id][:,0].argsort()]
+
+                trial = fmt_data[act_id][:, self.signals_use]
+
+                # Filtro de NaNs
+                # indexes = np.sum(~np.isnan(trial), axis=1) == 54
+                # trial = trial[indexes]
+
+                act = actNamePAMAP2(act_id)
+                self.add_info_data(act, subject, trial_id, trial, output_dir)
+=======
+            cur_act = instances[0][1]
+            trial = []
+            for instance in instances:
+                act_id = int(instance[1])
+
+                if act_id not in fmt_data:
+                    fmt_data[act_id] = {}
+                    
+                if cur_act == act_id:
+                    trial.append(instance)
+                else:
+                    trial_id = max(list(fmt_data[act_id].keys())) if list(fmt_data[act_id].keys()) > 0 else 0
+                    fmt_data[act_id][trial_id + 1] = trial
+                    cur_act = act_id
+                    trial = []        
+
+            for act_id in fmt_data.keys():
+                for trial_id in fmt_data[act_id].keys():
+                    fmt_data[act_id][trial_id] = np.array(fmt_data[act_id][trial_id])
+                    
+                    # Sort by timestamp
+                    fmt_data[act_id][trial_id] = fmt_data[act_id][fmt_data[act_id][trial_id][:,0].argsort()]
+
+                    trial = fmt_data[act_id][trial_id][:, self.signals_use]
+
+                    # Filtro de NaNs
+                    # indexes = np.sum(~np.isnan(trial), axis=1) == 54
+                    # trial = trial[indexes]
+
+                    act = actNamePAMAP2(act_id)
+                    self.add_info_data(act, subject, trial_id, trial, output_dir)
+>>>>>>> 13b0b4b9ff0297cde31f1cae0fcfaa3d08ca10e6
+        self.save_data(output_dir)

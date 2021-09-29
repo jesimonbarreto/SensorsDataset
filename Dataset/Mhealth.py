@@ -10,40 +10,40 @@ class SignalsMHEALTH(Enum):
     acc_chest_Z = 2
     elecd_l1 = 3
     elecd_l2 = 4 
-    acc_left_ankle_X = 4
-    acc_left_ankle_Y = 5
-    acc_left_ankle_Z = 6
-    gyr_left_ankle_X = 7
-    gyr_left_ankle_Y = 8 
-    gyr_left_ankle_Z = 9
-    mag_left_ankle_X = 10
-    mag_left_ankle_Y = 11
-    mag_left_ankle_Z = 12
-    acc_right_lower_arm_X = 13
-    acc_right_lower_arm_Y = 14
-    acc_right_lower_arm_Z = 15
-    gyr_right_lower_arm_X = 16
-    gyr_right_lower_arm_Y = 17
-    gyr_right_lower_arm_Z = 18
-    mag_right_lower_arm_X = 19
-    mag_right_lower_arm_Y = 20
-    mag_right_lower_arm_Z = 21
+    acc_left_ankle_X = 5
+    acc_left_ankle_Y = 6
+    acc_left_ankle_Z = 7
+    gyr_left_ankle_X = 8
+    gyr_left_ankle_Y = 9 
+    gyr_left_ankle_Z = 10
+    mag_left_ankle_X = 11
+    mag_left_ankle_Y = 12
+    mag_left_ankle_Z = 13
+    acc_right_lower_arm_X = 14
+    acc_right_lower_arm_Y = 15
+    acc_right_lower_arm_Z = 16
+    gyr_right_lower_arm_X = 17
+    gyr_right_lower_arm_Y = 18
+    gyr_right_lower_arm_Z = 19
+    mag_right_lower_arm_X = 20
+    mag_right_lower_arm_Y = 21
+    mag_right_lower_arm_Z = 22
 
 
 actNameMHEALTH = {
-        0: 'nothing',
-        1: 'Standing',
-        2: 'Sitting',
-        3: 'Lying down',
-        4: 'Walking',
-        5: 'Climbing stairs',
-        6: 'Waist bends forward',
-        7: 'Frontal elevation of lower_arms',
-        8: 'Knees bending (crouching)',
-        9: 'Cycling',
-        10: 'Jogging',
-        11: 'Running',
-        12: 'Jump front & back'
+    0:  'Nothing',
+    1:  'Standing',
+    2:  'Sitting',
+    3:  'Lying down',
+    4:  'Walking',
+    5:  'Climbing stairs',
+    6:  'Waist bends forward',
+    7:  'Frontal elevation of lower arms',
+    8:  'Knees bending (crouching)',
+    9:  'Cycling',
+    10: 'Jogging',
+    11: 'Running',
+    12: 'Jump front & back'
 }
 
 
@@ -56,53 +56,47 @@ class MHEALTH(Dataset):
                 sensors:acc, gyr, mag, eletrocardiogram
                 """
 
-    def action_code_to_name(self, act):
-        new_act = []
-        for a in act:
-            new_act.append(actNameMHEALTH[int(a)])
-        return new_act
-
     def preprocess(self):
         files = glob.glob(os.path.join(self.dir_dataset,'*.log')) #glob.glob(pathname='*.log')
         output_dir = self.dir_save  #'../output'
+        for f in files:
+            if '.log' not in f:
+                continue
 
-        subject = 0
-        for file in files:
-            f = open(file)
-            lines = f.readlines()
-            iterator = 0
+            fmt_data = {}
+            start = -6 if f[-6].isnumeric() else -5
+            subject = int(f[start:-4])
+            
+            with open(f, 'r') as inp:
+                instances = [list(map(float, line.split())) for line in inp.read().splitlines()]
+            
+            cur_act = instances[0][-1]
             trial = []
-            trial_id = 0
-            subject = subject + 1
-            for line in lines:
-                split = line.strip().split('\t')
-                columns = len(split)-1
-                if len(split) < 24:
-                    print('Error')
-                
-                act = split[columns]
+            for instance in instances:
+                act_id = int(instance[-1])      
+                if act_id not in fmt_data:
+                    fmt_data[act_id] = {}
 
-
-                #It is the same trial
-                if iterator != len(lines)-1 and lines[iterator+1].split('\t')[len(split)-1].replace('\n','') == act:
-                    if len(self.signals_use)>0:
-                        data = []
-                        for d in self.signals_use:
-                            data.append(split[d.value])
-                        dc = np.column_stack(data)
-                    else:
-                        dc = split[0:columns]
-                    trial.append(dc)
-                
-                #The next line will be a novel trial
-                else:
-                    #act = self.action_code_to_name(act)
-                    act = actNameMHEALTH[int(act)]
-                    self.add_info_data(act, subject, trial_id, trial, output_dir)
-                    trial_id = trial_id + 1
+                if cur_act != act_id:
+                    trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
+                    fmt_data[act_id][trial_id + 1] = trial
+                    cur_act = act_id
                     trial = []
 
-                iterator = iterator + 1
-            
-            #print('file_name:[{}] s:[{}]'.format(file, subject))
+                trial.append(instance)
+
+            for act_id in fmt_data.keys():
+                if act_id != 0:
+                    for trial_id, trial in fmt_data[act_id].items():
+                        trial = np.array(trial)
+
+                        signals = [signal.value for signal in self.signals_use]
+                        trial = trial[:, signals]
+
+                        # Filtro de NaNs
+                        # indexes = np.sum(~np.isnan(trial), axis=1) == 54
+                        # trial = trial[indexes]
+
+                        act = actNameMHEALTH[act_id]
+                        self.add_info_data(act, subject, trial_id, trial, output_dir)
         self.save_data(output_dir)

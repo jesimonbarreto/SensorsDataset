@@ -1,31 +1,29 @@
 import os
-
 from scipy.io import loadmat
-
 from Dataset.Datasets import Dataset
-
 from enum import Enum
+import numpy as np
 
 
 class SignalsUSCHAD(Enum):
-    acc_front_right_hip_X = 1
-    acc_front_right_hip_Y = 2 
-    acc_front_right_hip_Z = 3
-    gyr_front_right_hip_X = 4
-    gyr_front_right_hip_Y = 5
-    gyr_front_right_hip_Z = 6
+    acc_front_right_hip_X = 0
+    acc_front_right_hip_Y = 1
+    acc_front_right_hip_Z = 2
+    gyr_front_right_hip_X = 3
+    gyr_front_right_hip_Y = 4
+    gyr_front_right_hip_Z = 5
 
 
 actNameUSCHAD = {
-    1:  'Walking Forward',
-    2:  'Walking Left',
-    3:  'Walking Right',
-    4:  'Walking Upstairs',
-    5:  'Walking Downstairs',
-    6:  'Running Forward',
-    7:  'Jumping Up',
-    8:  'Sitting',
-    9:  'Standing',
+    1:  'Walk Forward',
+    2:  'Walk Left',
+    3:  'Walk Right',
+    4:  'Walk Up',
+    5:  'Walk Down',
+    6:  'Run',
+    7:  'Jump',
+    8:  'Sit',
+    9:  'Stand',
     10: 'Sleeping',
     11: 'Elevator Up',
     12: 'Elevator Down',
@@ -41,6 +39,23 @@ class USCHAD(Dataset):
                 sensors: acc and gyr
                 """
 
+    def fix_name_act(self, act):
+        if "running" in act:
+            act = act.replace("running", "run")
+        if "jumping" in act:
+            act = act.replace("jumping", "jump")
+        if "sitting" in act:
+            act = act.replace("sitting", "sit")
+        if "standing" in act:
+            act = act.replace("standing", "stand")
+        if "downstairs" in act:
+            act = act.replace("downstairs", "down")
+        if "walking" in act:
+            act = act.replace("walking", "walk")
+        if "upstairs" in act:
+            act = act.replace("upstairs", "up")
+        return act
+
     def preprocess(self):
         mat_files = []
         for root, dirs, files in os.walk(self.dir_dataset):
@@ -52,9 +67,14 @@ class USCHAD(Dataset):
             act = mat_file['activity'][0]
             subject = int(mat_file['subject'][0])
             trial_id = int(mat_file['trial'][0])
-            trial = mat_file['sensor_readings']
+            trial_data = mat_file['sensor_readings'].astype('float64')
 
+            data = []
+            for d in self.signals_use:
+                data.append(trial_data[:, d.value])
+            trial = np.column_stack(data).astype('float64')
+            act = act.replace("-", " ")
+            act = self.fix_name_act(act)
             self.add_info_data(act, subject, trial_id, trial, self.dir_save)
-            print('file_name:[{}] s:[{}]'.format(filepath, subject))
 
         self.save_data(self.dir_save)

@@ -1,14 +1,15 @@
 from .Datasets import Dataset
 from enum import Enum
+import numpy as np
 
 
 class SignalsWisdm(Enum):
-    acc_front_pants_pocket_X = 0
-    acc_front_pants_pocket_Y = 1
-    acc_front_pants_pocket_Z = 2
+    acc_front_pants_pocket_X = 3
+    acc_front_pants_pocket_Y = 4
+    acc_front_pants_pocket_Z = 5
 
 
-actNamesWISDM = {
+actNameWISDM = {
     1: 'Walking',
     2: 'Jogging',
     3: 'Upstairs',
@@ -29,41 +30,57 @@ class Wisdm(Dataset):
                 """
 
     def preprocess(self):
-        file_name = self.dir_dataset
+        filename = self.dir_dataset
         output_dir = self.dir_save
-        separator = '_'
-        idx_label = 1
 
-        f = open(file_name)
-        lines = f.readlines()
-        iterator = 0
-        trial = []
-        trial_id = 0
-        for line in lines:
-            try:
-                split = line.strip().replace(';','').split(',')
-                subject, act, time_stamp, x, y, z = split[0], split[1], split[2], split[3], split[4], split[5]
-                #It is the same trial
-                if iterator < len(lines)-1 and lines[iterator+1].split(',')[1] == act and lines[iterator+1].split(',')[0] == subject:
-                    if time_stamp != '0': #timestamp equal to zero is a bug of the trial
-                        v = []
-                        data = []
-                        for d in self.signals_use:
-                            v.append(d.value)
-                        if 0 in v:
-                            data.append(float(x))
-                        if 1 in v:
-                            data.append(float(y))
-                        if 2 in v:
-                            data.append(float(z))
-                        trial.append(data)
+        output_dir = self.dir_save
 
-                #The next line will be a novel trial
-                else:
-                    print('{} {} {}'.format(act, subject, trial_id))
-                    self.add_info_data(act, subject, trial_id, trial, output_dir)
-                    #self.save_file(act, subject, trial_id, trial, self.dir_save)
-                    trial_id = trial_id + 1
-            except:
-                print('Erro :'+line)
+        with open(filename, 'r') as f:
+            fmt_data = {}
+            instances = [line[:-1].split(',') for line in f.read().splitlines()]
+
+            cur_subject = int(instances[0][0])
+            cur_act = instances[0][1]
+            trial = []
+            for instance in instances:
+                if len(instance) != 6:
+                    continue
+
+                instance[2:] = list(map(float, instance[2:]))
+
+                subject = int(instance[0])
+                act = instance[1]
+
+                # Add keys to dict if they are not present
+                if subject not in fmt_data:
+                    fmt_data[subject] = {}
+                if act not in fmt_data[subject]:
+                    fmt_data[subject][act] = {}
+
+                # Reset varaibles to add new trial on act change or subj change
+                if cur_act != act or cur_subject != subject:
+                    trial_id = max(list(fmt_data[subject][act].keys())) if len(list(fmt_data[subject][act].keys())) > 0 else 0
+                    fmt_data[subject][act][trial_id + 1] = trial
+                    cur_act = act
+                    cur_subject = subject
+                    trial = []
+                
+                trial.append(instance)
+
+            for subject in fmt_data.keys():
+                for act in fmt_data[subject].keys():
+                    for trial_id, trial in fmt_data[subject][act].items():
+                        trial = np.array(trial)
+
+                        # Sort by timestamp
+                        trial = trial[trial[:, 2].argsort()]
+
+                        signals = [signal.value for signal in self.signals_use]
+                        trial = trial[:, signals].astype(np.float)
+
+                        # Filtro de NaNs
+                        # indexes = np.sum(~np.isnan(trial), axis=1) == 54
+                        # trial = trial[indexes]
+
+                        self.add_info_data(act, subject, trial_id, trial, output_dir)
         self.save_data(output_dir)
