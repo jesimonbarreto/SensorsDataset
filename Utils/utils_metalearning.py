@@ -108,5 +108,38 @@ def target_task_top4_original(dataset_name):
     return output
 
 
+def target_task_health(dataset_name):
+    """
+       TODO: Create a target_task_health function using the activities siting, lying down, standing, walking ...
+       from a given dataset using the format "dataset-activity"
+
+    """
+
+    output = []
+    if dataset_name.upper() == 'MHEALTH':
+        acts = ['Walking', 'Sitting', 'Standing', 'Lying down']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    elif dataset_name.upper() == 'PAMAP2':
+        acts =['Walking', 'Sitting', 'Standing', 'Lying']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    elif dataset_name.upper() == 'USCHAD':
+        acts = ['Walk Forward', 'Sit', 'Stand', 'Sleeping']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    elif dataset_name.upper() == 'WHARF':
+        acts = ['Walk', 'Sitdown chair', 'Standup chair', 'Getup bed', 'Liedown bed']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    elif dataset_name.upper() == 'WISDM':
+        acts = ['Walking', 'Sitting', 'Standing']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    else:
+        sys.exit("O dataset {} não é aceito".format(dataset_name))
+
+    return output
+
 if __name__ == '__main__':
     print(all_activities('uschad'))
