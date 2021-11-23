@@ -8,6 +8,8 @@ from scipy.io import loadmat
 import random
 import csv
 
+from Utils.actTranslate import genericActNames
+
 
 #Class name pattern - use gerund with the first capital letter
 #Examples: Walking, Standing, Upstairs
@@ -115,6 +117,9 @@ class Dataset(metaclass=ABCMeta):
 	def add_label_class(self, code, label):
 		self.labels[code] = label
 	
+	def generalizeActName(self):
+		self.activitiesDict = dict(
+			zip(self.activitiesDict.keys(), [genericActNames(v) for v in self.activitiesDict.values()]))
 	
 	"""
 	Funções que devem ser implementadas, utilizar o diretorio do dataset para ler

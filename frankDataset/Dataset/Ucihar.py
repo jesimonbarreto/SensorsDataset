@@ -4,6 +4,7 @@ import pandas as pd
 import glob, os,time
 from enum import Enum
 
+
 class SignalsUcihar(Enum):
 	acc_body_X = 0
 	acc_body_Y = 1
@@ -42,7 +43,7 @@ class UCIHAR(Dataset):
 			   "Age: 19-48" \
 			   "example: https://www.youtube.com/watch?v=XOEN9W05_4A" \
 			   "Obs: Triaxial acceleration from the accelerometer (total acceleration) and the estimated body acceleration."
-		
+
 	def preprocess(self):
 		start = time.time()
 		dataFiles = os.path.join(self.dir_dataset,'original','UCI HAR Dataset')
@@ -53,8 +54,7 @@ class UCIHAR(Dataset):
 			for sig in ['body_acc','body_gyro','total_acc']:
 				for axis in ['x','y','z']:
 					data.append(pd.read_csv(os.path.join(path,f'{sig}_{axis}_{part}.txt'),delim_whitespace=True, header=None))
-		
-	
+
 			subjects = pd.read_csv(os.path.join(self.dir_dataset,'original',f'subject_{part}.csv'))
 			labels = pd.read_csv(os.path.join(self.dir_dataset,'original',f'y_{part}.csv'))
 			for i in range(len(labels)):
@@ -73,10 +73,5 @@ class UCIHAR(Dataset):
 		self.save_data(self.dir_save)
 		end = time.time()
 		self.preprocessTime = end - start
-
-			
-
-		
-			
 
 

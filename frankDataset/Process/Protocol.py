@@ -44,8 +44,10 @@ class Loso(object):
     def remove_action(self, selectedActivities=None, removeActivities=None):
 	    # TODO: Lidar com as variações de nome de atividades
 	    if selectedActivities:
+		    #create a bigger list with all variations of each activty name
 		    selectedActivities = list(map(lambda x: x.lower(), selectedActivities))
 		    aux = [actNameVersions[i] for  i in selectedActivities if i in actNameVersions.keys()]
+		    aux = [val for sublist in aux for val in sublist]
 		    selectedActivities += aux
 		    self.actSelected = selectedActivities
 	    if removeActivities:
