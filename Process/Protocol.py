@@ -476,7 +476,7 @@ class MetaLearning(object):
         self.groups = np.array(self.groups)
 
         # remove activities with less than n samples (necessary for 20-shot meta learning)
-        self.remove_activities(199)
+        #self.remove_activities(99)
 
         self.X = np.array(self.X, dtype=float)
         self.y = np.array(self.y)

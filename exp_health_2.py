@@ -107,27 +107,23 @@ if __name__ == "__main__":
     if not os.path.exists(dir_save_file):
         os.makedirs(dir_save_file)
 
-    datasets_list = ['mhealth', 'wharf', 'wisdm', 'uschad', 'pamap2']
+    #datasets_list = ['mhealth', 'wharf', 'wisdm', 'uschad', 'pamap2']
     # debug porpouses
-    #datasets_list = ['wisdm', 'wharf']
+    datasets_list = ['mhealth','pamap2']
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
     #process_datasets(datasets)
+    target_dataset = datasets_list[0]
+    source_dataset = datasets_list[1]
+    print("Target dataset: {}".format(target_dataset), flush=True)
+    start = time.time()
+    target_tasks = target_task_health(target_dataset)
 
-    for target_dataset in tqdm(datasets_list):
-        print("Target dataset: {}".format(target_dataset), flush=True)
-        start = time.time()
-        target_tasks = target_task_health(target_dataset)
-
-        source_dataset = [d for d in datasets_list if d not in target_dataset]
-        source_tasks = []
-        source_names = ''
-        for dt in source_dataset:
-            source_tasks.extend(target_task_health(dt))
-            source_names += "_{}".format(dt)
-        exp_name = "3ways_target[{}]_source[{}]_baseline1_ICU".format(target_dataset, source_names)
-        create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
-                       overlapping, time_wd, new_freq)
-        end = time.time()
-        print("Time passed target dataset {} = {}".format(target_dataset, end - start), flush=True)
+    source_tasks = target_task_health(source_dataset)
+    source_names = "_{}".format(source_dataset)
+    exp_name = "3ways_target[{}]_source[{}]_metalearning_ICU".format(target_dataset, source_names)
+    create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
+                   overlapping, time_wd, new_freq)
+    end = time.time()
+    print("Time passed target dataset {} = {}".format(target_dataset, end - start), flush=True)
