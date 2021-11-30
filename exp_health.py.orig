@@ -7,22 +7,38 @@ from Dataset.Uschad import USCHAD, SignalsUSCHAD as susc
 from Dataset.Pamap2 import PAMAP2, SignalsPAMAP2 as sp
 
 from Process.Manager import preprocess_datasets
-from Process.Protocol import MetaLearning
+from Process.Protocol import MetaLearningICU
 import os
 
-from Utils.utils_metalearning import different_from_top4, target_task_top4
+from Utils.utils_metalearning import target_task_health
 from tqdm import tqdm
 import time
 import argparse
 import numpy as np
+from sys import platform
 
 
 def instanciate_dataset(datasets_list, dir_datasets):
-    file_wisdm = '/storage/datasets/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
-    file_pm = '/storage/datasets/sensors/originals/PAMAP2/'
-    file_mh = '/storage/datasets/sensors/originals/MHEALTHDATASET/'
-    file_wharf = '/storage/datasets/sensors/originals/WHARF/WHARF Data Set/Data/'
-    file_uschad = '/storage/datasets/sensors/originals/USC-HAD'
+<<<<<<< HEAD
+    file_wisdm = 'X:/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
+    file_pm = 'X:/sensors/originals/PAMAP2/'
+    file_mh = 'X:/sensors/originals/MHEALTHDATASET/'
+    file_wharf = 'X:/sensors/originals/WHARF/WHARF Data Set/Data/'
+    file_uschad = 'X:/sensors/originals/USC-HAD'
+=======
+    if platform == 'win32':
+        file_wisdm = 'Z:/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
+        file_pm = 'Z:/sensors/originals/PAMAP2/'
+        file_mh = 'Z:/sensors/originals/MHEALTHDATASET/'
+        file_wharf = 'Z:/sensors/originals/WHARF/WHARF Data Set/Data/'
+        file_uschad = 'Z:/sensors/originals/USC-HAD'
+    else:
+        file_wisdm = '/storage/datasets/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
+        file_pm = '/storage/datasets/sensors/originals/PAMAP2/'
+        file_mh = '/storage/datasets/sensors/originals/MHEALTHDATASET/'
+        file_wharf = '/storage/datasets/sensors/originals/WHARF/WHARF Data Set/Data/'
+        file_uschad = '/storage/datasets/sensors/originals/USC-HAD'
+>>>>>>> cbaf593d2ff15a3709954e8878cad22e2f8d4f2e
 
     datasets = []
     # Creating datasets
@@ -69,10 +85,10 @@ def process_datasets(datasets):
     return datasets
 
 
-def create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
+def create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
                    overlapping, time_wd, new_freq):
     # Creating Loso evaluate generating
-    generate_ev = MetaLearning(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=overlapping,
+    generate_ev = MetaLearningICU(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=overlapping,
                                time_wd=time_wd)
     generate_ev.set_name_act()
     # function to save information e data
@@ -93,12 +109,21 @@ if __name__ == "__main__":
     if args.debug:
         import pydevd_pycharm
 
-        pydevd_pycharm.settrace('172.22.100.6', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
+        pydevd_pycharm.settrace('172.22.100.3', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
 
-    dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
-    dir_save_file = '/storage/datasets/sensors/nshot_experiments/pra_rodar/'
+<<<<<<< HEAD
+    dir_datasets = 'C:/Users/jsena/Documents/Pesquisa/Codes/DA-healthy2patient/2-residuals/dataset_preprocess/'
+    dir_save_file = 'C:/Users/jsena/Documents/Pesquisa/Codes/DA-healthy2patient/2-residuals/'
+=======
+    if platform == 'win32':
+        dir_datasets = 'C:/Users/jsenadesouza/Documents/Research/Residuals/dataset_preprocess/'
+        dir_save_file = 'C:/Users/jsenadesouza/Documents/Research/Residuals/'
+    else:
+        dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
+        dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/'
+>>>>>>> cbaf593d2ff15a3709954e8878cad22e2f8d4f2e
 
-    overlapping = 0
+    overlapping = 0.5
     time_wd = 5
     new_freq = 20
 
@@ -107,27 +132,27 @@ if __name__ == "__main__":
     if not os.path.exists(dir_save_file):
         os.makedirs(dir_save_file)
 
-    datasets_list = ['uschad', 'wharf', 'wisdm',  'pamap2', 'mhealth']
+    datasets_list = ['mhealth', 'wharf', 'wisdm', 'uschad', 'pamap2']
     # debug porpouses
-    # datasets_list = ['wisdm']
+    #datasets_list = ['wisdm', 'wharf']
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
-    process_datasets(datasets)
+    #process_datasets(datasets)
 
     for target_dataset in tqdm(datasets_list):
         print("Target dataset: {}".format(target_dataset), flush=True)
         start = time.time()
-        target_tasks = target_task_top4(target_dataset)
+        target_tasks = target_task_health(target_dataset)
 
         source_dataset = [d for d in datasets_list if d not in target_dataset]
         source_tasks = []
         source_names = ''
         for dt in source_dataset:
-            source_tasks.extend(different_from_top4(dt))
+            source_tasks.extend(target_task_health(dt))
             source_names += "_{}".format(dt)
-        exp_name = "4ways_target[{}]_source[{}]_exp1_c".format(target_dataset, source_names)
-        create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
+        exp_name = "3ways_target[{}]_source[{}]_baseline1_ICU".format(target_dataset, source_names)
+        create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
                        overlapping, time_wd, new_freq)
         end = time.time()
         print("Time passed target dataset {} = {}".format(target_dataset, end - start), flush=True)

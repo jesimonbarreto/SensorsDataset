@@ -30,6 +30,50 @@ actNameUSCHAD = {
 }
 
 
+def rename_act(act):
+    act = act.lower()
+    if act == 'walk forward':
+        return 'walking'
+    if act == 'walk up':
+        return 'upstairs'
+    if act == 'walk downstairs':
+        return 'downstairs'
+    if act == 'sit':
+        return 'sitting'
+    if act == 'stand':
+        return 'standing'
+    if act == 'sleeping':
+        return 'lying'
+    if act == 'run':
+        return 'running'
+    else:
+        return act
+
+
+def fix_name_act(act):
+    """
+    There is annotations of the same
+    class if different label
+    This code corrects it
+    """
+
+    if "running" in act:
+        act = act.replace("running", "run")
+    if "jumping" in act:
+        act = act.replace("jumping", "jump")
+    if "sitting" in act:
+        act = act.replace("sitting", "sit")
+    if "standing" in act:
+        act = act.replace("standing", "stand")
+    if "downstairs" in act:
+        act = act.replace("downstairs", "down")
+    if "walking" in act:
+        act = act.replace("walking", "walk")
+    if "upstairs" in act:
+        act = act.replace("upstairs", "up")
+    return act
+
+
 class USCHAD(Dataset):
     def print_info(self):
         return """
@@ -38,23 +82,6 @@ class USCHAD(Dataset):
                 positions: front-right-hip
                 sensors: acc and gyr
                 """
-
-    def fix_name_act(self, act):
-        if "running" in act:
-            act = act.replace("running", "run")
-        if "jumping" in act:
-            act = act.replace("jumping", "jump")
-        if "sitting" in act:
-            act = act.replace("sitting", "sit")
-        if "standing" in act:
-            act = act.replace("standing", "stand")
-        if "downstairs" in act:
-            act = act.replace("downstairs", "down")
-        if "walking" in act:
-            act = act.replace("walking", "walk")
-        if "upstairs" in act:
-            act = act.replace("upstairs", "up")
-        return act
 
     def preprocess(self):
         mat_files = []
@@ -74,7 +101,8 @@ class USCHAD(Dataset):
                 data.append(trial_data[:, d.value])
             trial = np.column_stack(data).astype('float64')
             act = act.replace("-", " ")
-            act = self.fix_name_act(act)
+            act = fix_name_act(act)
+            act = rename_act(act)
             self.add_info_data(act, subject, trial_id, trial, self.dir_save)
 
         self.save_data(self.dir_save)

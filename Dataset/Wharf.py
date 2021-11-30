@@ -40,6 +40,21 @@ class WHARF(Dataset):
                 sensors: acc
                 """
 
+    def rename_act(self, act):
+        act = act.lower()
+        if act == 'walk':
+            return 'walking'
+        if act == 'climb stairs':
+            return 'upstairs'
+        if act == 'sitdown chair':
+            return 'sitting'
+        if act == 'standup chair':
+            return 'standing'
+        if act == 'descend stairs':
+            return 'downstairs'
+        else:
+            return act
+
     def preprocess(self):
         txt_files = []
         for root, dirs, files in os.walk(self.dir_dataset):
@@ -52,6 +67,7 @@ class WHARF(Dataset):
             filename = filepath.split(os.sep)[-1]
             act, subject = filename.split('-')[-2:]
             act = act.replace("_", " ")
+            act = self.rename_act(act)
             subject = subject.replace('.txt', '')
             with open(filepath, 'r') as inp:
                 instances = [list(map(float, line.split())) for line in inp.read().splitlines()]

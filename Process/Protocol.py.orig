@@ -811,7 +811,11 @@ class MetaLearningICU(object):
         self.groups = np.array(self.groups)
 
         # remove activities with less than n samples (necessary for 20-shot meta learning)
+<<<<<<< HEAD
+        #self.remove_activities(99)
+=======
         #self.remove_activities(40)
+>>>>>>> cbaf593d2ff15a3709954e8878cad22e2f8d4f2e
 
         self.X = np.array(self.X, dtype=float)
         self.y = np.array(self.y)

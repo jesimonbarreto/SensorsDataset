@@ -7,7 +7,7 @@ from Dataset.Uschad import USCHAD, SignalsUSCHAD as susc
 from Dataset.Pamap2 import PAMAP2, SignalsPAMAP2 as sp
 
 from Process.Manager import preprocess_datasets
-from Process.Protocol import MetaLearning
+from Process.Protocol import MetaLearningICU
 import os
 
 from Utils.utils_metalearning import target_task_health
@@ -15,14 +15,22 @@ from tqdm import tqdm
 import time
 import argparse
 import numpy as np
+from sys import platform
 
 
 def instanciate_dataset(datasets_list, dir_datasets):
-    file_wisdm = 'X:/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
-    file_pm = 'X:/sensors/originals/PAMAP2/'
-    file_mh = 'X:/sensors/originals/MHEALTHDATASET/'
-    file_wharf = 'X:/sensors/originals/WHARF/WHARF Data Set/Data/'
-    file_uschad = 'X:/sensors/originals/USC-HAD'
+    if platform == 'win32':
+        file_wisdm = 'Z:/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
+        file_pm = 'Z:/sensors/originals/PAMAP2/'
+        file_mh = 'Z:/sensors/originals/MHEALTHDATASET/'
+        file_wharf = 'Z:/sensors/originals/WHARF/WHARF Data Set/Data/'
+        file_uschad = 'Z:/sensors/originals/USC-HAD'
+    else:
+        file_wisdm = '/storage/datasets/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
+        file_pm = '/storage/datasets/sensors/originals/PAMAP2/'
+        file_mh = '/storage/datasets/sensors/originals/MHEALTHDATASET/'
+        file_wharf = '/storage/datasets/sensors/originals/WHARF/WHARF Data Set/Data/'
+        file_uschad = '/storage/datasets/sensors/originals/USC-HAD'
 
     datasets = []
     # Creating datasets
@@ -72,7 +80,7 @@ def process_datasets(datasets):
 def create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
                    overlapping, time_wd, new_freq):
     # Creating Loso evaluate generating
-    generate_ev = MetaLearning(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=overlapping,
+    generate_ev = MetaLearningICU(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=overlapping,
                                time_wd=time_wd)
     generate_ev.set_name_act()
     # function to save information e data
@@ -95,8 +103,12 @@ if __name__ == "__main__":
 
         pydevd_pycharm.settrace('172.22.100.3', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
 
-    dir_datasets = 'C:/Users/jsena/Documents/Pesquisa/Codes/DA-healthy2patient/2-residuals/dataset_preprocess/'
-    dir_save_file = 'C:/Users/jsena/Documents/Pesquisa/Codes/DA-healthy2patient/2-residuals/'
+    if platform == 'win32':
+        dir_datasets = 'C:/Users/jsenadesouza/Documents/Research/Residuals/dataset_preprocess/'
+        dir_save_file = 'C:/Users/jsenadesouza/Documents/Research/Residuals/'
+    else:
+        dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
+        dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/'
 
     overlapping = 0.5
     time_wd = 5

@@ -29,6 +29,9 @@ class Wisdm(Dataset):
                 sensors: acc
                 """
 
+    def rename_act(self, act):
+        return act.lower()
+
     def preprocess(self):
         filename = self.dir_dataset
         output_dir = self.dir_save

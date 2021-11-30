@@ -117,6 +117,21 @@ def target_task_health(dataset_name):
 
     output = []
     if dataset_name.upper() == 'MHEALTH':
+<<<<<<< HEAD
+        acts = ['Walking', 'Sitting', 'Standing']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    elif dataset_name.upper() == 'PAMAP2':
+        acts =['Walking', 'Sitting', 'Standing']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    elif dataset_name.upper() == 'USCHAD':
+        acts = ['Walk Forward', 'Sit', 'Stand']
+        for act in acts:
+            output.append(dataset_name + '-' + act.lower())
+    elif dataset_name.upper() == 'WHARF':
+        acts = ['Walk', 'Sitdown chair', 'Standup chair']
+=======
         acts = ['walking', 'sitting', 'standing', 'lying']
         for act in acts:
             output.append(dataset_name + '-' + act.lower())
@@ -130,6 +145,7 @@ def target_task_health(dataset_name):
             output.append(dataset_name + '-' + act.lower())
     elif dataset_name.upper() == 'WHARF':
         acts = ['walking', 'sitting', 'standing', 'getup bed', 'liedown bed']
+>>>>>>> cbaf593d2ff15a3709954e8878cad22e2f8d4f2e
         for act in acts:
             output.append(dataset_name + '-' + act.lower())
     elif dataset_name.upper() == 'WISDM':
