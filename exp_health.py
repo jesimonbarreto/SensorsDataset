@@ -20,11 +20,11 @@ from sys import platform
 
 def instanciate_dataset(datasets_list, dir_datasets):
     if platform == 'win32':
-        file_wisdm = 'Z:/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
-        file_pm = 'Z:/sensors/originals/PAMAP2/'
-        file_mh = 'Z:/sensors/originals/MHEALTHDATASET/'
-        file_wharf = 'Z:/sensors/originals/WHARF/WHARF Data Set/Data/'
-        file_uschad = 'Z:/sensors/originals/USC-HAD'
+        file_wisdm = 'X:/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
+        file_pm = 'X:/sensors/originals/PAMAP2/'
+        file_mh = 'X:/sensors/originals/MHEALTHDATASET/'
+        file_wharf = 'X:/sensors/originals/WHARF/WHARF Data Set/Data/'
+        file_uschad = 'X:/sensors/originals/USC-HAD'
     else:
         file_wisdm = '/storage/datasets/sensors/originals/WISDM/WISDM_ar_v1.1_raw.txt'
         file_pm = '/storage/datasets/sensors/originals/PAMAP2/'
@@ -104,8 +104,8 @@ if __name__ == "__main__":
         pydevd_pycharm.settrace('172.22.100.3', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
 
     if platform == 'win32':
-        dir_datasets = 'C:/Users/jsenadesouza/Documents/Research/Residuals/dataset_preprocess/'
-        dir_save_file = 'C:/Users/jsenadesouza/Documents/Research/Residuals/'
+        dir_datasets = 'C:/Users/jsena/Documents/Pesquisa/Codes/DA-healthy2patient/2-residuals/dataset_preprocess/'
+        dir_save_file = 'C:/Users/jsena/Documents/Pesquisa/Codes/DA-healthy2patient/2-residuals/'
     else:
         dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
         dir_save_file = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/'

@@ -7,7 +7,7 @@ from Dataset.Uschad import USCHAD, SignalsUSCHAD as susc
 from Dataset.Pamap2 import PAMAP2, SignalsPAMAP2 as sp
 
 from Process.Manager import preprocess_datasets
-from Process.Protocol import MetaLearning
+from Process.Protocol import MetaLearningICU
 import os
 
 from Utils.utils_metalearning import target_task_health
@@ -72,7 +72,7 @@ def process_datasets(datasets):
 def create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
                    overlapping, time_wd, new_freq):
     # Creating Loso evaluate generating
-    generate_ev = MetaLearning(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=overlapping,
+    generate_ev = MetaLearningICU(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=overlapping,
                                time_wd=time_wd)
     generate_ev.set_name_act()
     # function to save information e data
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     #datasets_list = ['mhealth', 'wharf', 'wisdm', 'uschad', 'pamap2']
     # debug porpouses
-    datasets_list = ['mhealth','pamap2']
+    datasets_list = ['uschad', 'pamap2']
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
