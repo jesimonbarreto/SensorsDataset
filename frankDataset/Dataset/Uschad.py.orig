@@ -14,16 +14,16 @@ class SignalsUschad(Enum):
     gyr_front_right_hip_Z = 5
 
 
-actNameUSCHAD = {
-    1:  'Walk Forward',
-    2:  'Walk Left',
-    3:  'Walk Right',
-    4:  'Walk Up',
-    5:  'Walk Down',
-    6:  'Run',
-    7:  'Jump',
-    8:  'Sit',
-    9:  'Stand',
+actNameUschad = {
+    1:  'Walking Forward',
+    2:  'Walking Left',
+    3:  'Walking Right',
+    4:  'Walking Up',
+    5:  'Walking Down',
+    6:  'Running',
+    7:  'Jumping',
+    8:  'Sitting',
+    9:  'Standing',
     10: 'Sleeping',
     11: 'Elevator Up',
     12: 'Elevator Down',
@@ -75,7 +75,6 @@ def fix_name_act(act):
 
 
 class USCHAD(Dataset):
-
     def __init__(self, name, dir_dataset, dir_save, freq = 100, trials_per_file=100000):
         super().__init__(name, dir_dataset, dir_save, freq = freq, trials_per_file=trials_per_file)
         self.activitiesDict = actNameUschad
@@ -106,8 +105,12 @@ class USCHAD(Dataset):
                 data.append(trial_data[:, d.value])
             trial = np.column_stack(data).astype('float64')
             act = act.replace("-", " ")
-            #act = self.fix_name_act(act)
+<<<<<<< HEAD
+            act = fix_name_act(act)
             act = rename_act(act)
+=======
+            #act = self.fix_name_act(act)
+>>>>>>> d38b4b9ff3047924f442d8d878e68b236a86180a
             self.add_info_data(act, subject, trial_id, trial, self.dir_save)
 
         self.save_data(self.dir_save)

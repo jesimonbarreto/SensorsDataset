@@ -55,7 +55,8 @@ class MHEALTH(Dataset):
                 positions: chest, left ankle and right lower arm
                 sensors:acc, gyr, mag, eletrocardiogram
                 """
-	
+<<<<<<< HEAD
+
     def rename_act(self, act):
         act = act.lower()
         if act == 'climbing stairs':
@@ -65,6 +66,53 @@ class MHEALTH(Dataset):
         else:
             return act
 
+    def preprocess(self):
+        files = glob.glob(os.path.join(self.dir_dataset,'*.log')) #glob.glob(pathname='*.log')
+        output_dir = self.dir_save  #'../output'
+        for f in files:
+            if '.log' not in f:
+                continue
+
+            fmt_data = {}
+            start = -6 if f[-6].isnumeric() else -5
+            subject = int(f[start:-4])
+            
+            with open(f, 'r') as inp:
+                instances = [list(map(float, line.split())) for line in inp.read().splitlines()]
+            
+            cur_act = instances[0][-1]
+            trial = []
+            for instance in instances:
+                act_id = int(instance[-1])      
+                if act_id not in fmt_data:
+                    fmt_data[act_id] = {}
+
+                if cur_act != act_id:
+                    trial_id = max(list(fmt_data[act_id].keys())) if len(list(fmt_data[act_id].keys())) > 0 else 0
+                    fmt_data[act_id][trial_id + 1] = trial
+                    cur_act = act_id
+                    trial = []
+
+                trial.append(instance)
+
+            for act_id in fmt_data.keys():
+                if act_id != 0:
+                    for trial_id, trial in fmt_data[act_id].items():
+                        trial = np.array(trial)
+
+                        signals = [signal.value for signal in self.signals_use]
+                        trial = trial[:, signals]
+
+                        # Filtro de NaNs
+                        # indexes = np.sum(~np.isnan(trial), axis=1) == 54
+                        # trial = trial[indexes]
+
+                        act = actNameMHEALTH[act_id]
+                        act = self.rename_act(act)
+                        self.add_info_data(act, subject, trial_id, trial, output_dir)
+        self.save_data(output_dir)
+=======
+	
 	def preprocess(self):
 		files = glob.glob(os.path.join(self.dir_dataset, '*.log'))  # glob.glob(pathname='*.log')
 		output_dir = self.dir_save  # '../output'
@@ -107,6 +155,6 @@ class MHEALTH(Dataset):
 						# trial = trial[indexes]
 						
 						act = actNameMhealth[act_id]
-                       				#act = self.rename_act(act)
 						self.add_info_data(act, subject, trial_id, trial, output_dir)
 		self.save_data(output_dir)
+>>>>>>> d38b4b9ff3047924f442d8d878e68b236a86180a

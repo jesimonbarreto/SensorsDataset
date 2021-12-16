@@ -43,7 +43,7 @@ actNameNonSense = {
 }
 
 
-class NonSense(Dataset):
+class NONSENSE(Dataset):
     # http://www.mica.edu.vn/perso/Le-Thi-Lan/19NonSense.html
 
     def print_info(self):

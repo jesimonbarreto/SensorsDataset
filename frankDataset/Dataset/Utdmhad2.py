@@ -15,7 +15,7 @@ class SignalsUtdmhad2(Enum):
     gyr_right_thigh_Z = 6
 
 
-actNameUTDMHAD2 = {
+actNameUtdmhad2 = {
         22: 'Jogging',
         23: 'Walking',
         24: 'Sit to stand',
@@ -48,7 +48,7 @@ class UTDMHAD2(Dataset):
                 data.append(samples[:,d.value]) #[:, 0:3]
             trial = np.column_stack(data)
             if act in activities:
-                act_name = actNameUTDMHAD2[act]
+                act_name = actNameUtdmhad2[act]
                 #print('{} {} {}'.format(act_name, subject, trial_id))
                 self.add_info_data(act_name, subject, trial_id, trial, self.dir_save)
 

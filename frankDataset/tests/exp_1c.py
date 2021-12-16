@@ -10,7 +10,7 @@ from Process.Manager import preprocess_datasets
 from Process.Protocol import MetaLearning
 import os
 
-from Utils.utils_metalearning import target_task_top4, all_activities_all_datasets
+from Utils.utils_metalearning import different_from_top4, target_task_top4
 from tqdm import tqdm
 import time
 import argparse
@@ -69,7 +69,7 @@ def process_datasets(datasets):
     return datasets
 
 
-def create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
+def create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
                    overlapping, time_wd, new_freq):
     # Creating Loso evaluate generating
     generate_ev = MetaLearning(datasets, dir_datasets, source_tasks, target_tasks, exp_name, overlapping=overlapping,
@@ -84,6 +84,10 @@ def create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_t
 
 
 if __name__ == "__main__":
+	
+	#TODO:
+	# Endenteder o que esse codigo faz
+	#
 
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--debug', action='store_true')
@@ -93,7 +97,7 @@ if __name__ == "__main__":
     if args.debug:
         import pydevd_pycharm
 
-        pydevd_pycharm.settrace('172.22.100.7', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
+        pydevd_pycharm.settrace('172.22.100.6', port=9000, stdoutToServer=True, stderrToServer=True, suspend=False)
 
     dir_datasets = '/mnt/users/jessica/Codes/frankdataset/2-residuals/results/dataset_preprocess/'
     dir_save_file = '/storage/datasets/sensors/nshot_experiments/pra_rodar/'
@@ -107,9 +111,9 @@ if __name__ == "__main__":
     if not os.path.exists(dir_save_file):
         os.makedirs(dir_save_file)
 
-    datasets_list = ['mhealth', 'wharf', 'wisdm', 'uschad', 'pamap2']
+    datasets_list = ['uschad', 'wharf', 'wisdm',  'pamap2', 'mhealth']
     # debug porpouses
-    #datasets_list = ['pamap2', 'wharf']
+    # datasets_list = ['wisdm']
 
     datasets = instanciate_dataset(datasets_list, dir_datasets)
 
@@ -124,10 +128,10 @@ if __name__ == "__main__":
         source_tasks = []
         source_names = ''
         for dt in source_dataset:
-            source_tasks.extend(target_task_top4(dt))
+            source_tasks.extend(different_from_top4(dt))
             source_names += "_{}".format(dt)
-        exp_name = "4ways_target[{}]_source[{}]_exp1_a".format(target_dataset, source_names)
-        create_dataset(datasets, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
+        exp_name = "4ways_target[{}]_source[{}]_exp1_c".format(target_dataset, source_names)
+        create_dataset(datasets, datasets_list, dir_save_file, dir_datasets, source_tasks, target_tasks, exp_name,
                        overlapping, time_wd, new_freq)
         end = time.time()
         print("Time passed target dataset {} = {}".format(target_dataset, end - start), flush=True)

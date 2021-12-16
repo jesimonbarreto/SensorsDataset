@@ -10,25 +10,35 @@ from enum import Enum
 
 
 class SignalsCOOK(Enum):
-    sensor_X = 0
-    sensor_Y = 1
-    sensor_Z = 2
+    acc_left_hip_X    =  0
+    acc_left_hip_Y    =  1
+    acc_left_hip_Z    =  2
+    acc_left_wrist_X  =  3
+    acc_left_wrist_Y  =  4
+    acc_left_wrist_Z  =  5
+    acc_right_arm_X   =  6
+    acc_right_arm_Y   =  7
+    acc_right_arm_Z   =  8
+    acc_right_wrist_X =  9
+    acc_right_wrist_Y = 10
+    acc_right_wrist_Z = 11
+    
 
 
 actNameCOOK = {
-    1: 'Activity 1',
-    2: 'Activity 2',
-    3: 'Activity 3'
+    1: 'fruitsalad',
+    2: 'sandwich',
+    3: 'cereal'
 }
 
-class Cook2020(Dataset):
+class COOK(Dataset):
     # https://abc-research.github.io/cook2020/
     def print_info(self):
         return """
-                device: 
-                frequency: 
-                positions: 
-                sensors: 
+                device: smartwatch, smartphone
+                frequency:  100Hz (smartwatch), 50Hz (smartphone)
+                positions: left_hip,left_wrist ,right_arm,right_wrist
+                sensors: Accelerometer
                 """
 
     def preprocess(self, sensor_list =  ['left_hip' ,'left_wrist' ,'right_arm' ,'right_wrist']):
@@ -66,7 +76,8 @@ class Cook2020(Dataset):
             return data, data_count
         # merge train and test first!
 
-
+		#If you haven't unpacket yet!!!
+  
 #		zip_train = zipfile.ZipFile(os.path.join(self.dir_dataset,'train.zip'))
 #		zip_train.extractall(self.dir_dataset)
 #		zip_test = zipfile.ZipFile(os.path.join(self.dir_dataset,'test.zip'))

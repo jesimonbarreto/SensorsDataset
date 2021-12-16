@@ -35,7 +35,7 @@ def interpolate_sensors(samples, type_interp, n_samples, plot=False):
                 plt.plot(x, y, '--', x_new, y_new, 'o')
                 plt.xticks(x_new)
                 plt.show()
-        s = np.array(s)
+        s = np.transpose(np.array(s),(1,0))
         new_samples.append(s)
     #new_samples = np.array(new_samples)
     return new_samples

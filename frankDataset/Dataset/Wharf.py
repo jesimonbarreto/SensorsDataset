@@ -13,7 +13,7 @@ class SignalsWharf(Enum):
     acc_right_wrist_Z = 2
 
 
-actNameWHARF = {
+actNameWharf = {
     1:  'Brush teeth',
     2:  'Climb stairs',
     3:  'Comb hair',

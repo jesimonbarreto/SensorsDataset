@@ -1,15 +1,13 @@
 from .Datasets import Dataset
-from .Wisdm import Wisdm
-from .Wisdm import SignalsWisdm
-from .Mhealth import MHEALTH
-from .Mhealth import SignalsMHEALTH
-from .Pamap2 import PAMAP2
-from .Pamap2 import SignalsPAMAP2
-from .Utdmhad1 import UTDMHAD1
-from .Utdmhad1 import SignalsUtdmhad1
-from .Utdmhad2 import UTDMHAD2
-from .Utdmhad2 import SignalsUtdmhad2
-from .Wharf import WHARF
-from .Wharf import SignalsWharf
-from .Uschad import USCHAD
+from .Cook2020 import COOK
+from .Nonsense19 import NONSENSE
 
+from .Dsads import DSADS, SignalsDsads
+from .Mhealth import MHEALTH, SignalsMhealth
+from .Pamap2 import PAMAP2, SignalsPamap2
+from .Uschad import USCHAD, SignalsUschad
+from .Ucihar import UCIHAR, SignalsUcihar
+from .Utdmhad1 import UTDMHAD1, SignalsUtdmhad1
+from .Utdmhad2 import UTDMHAD2, SignalsUtdmhad2
+from .Wharf import WHARF, SignalsWharf
+from .Wisdm import WISDM, SignalsWisdm
