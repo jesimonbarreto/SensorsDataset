@@ -15,7 +15,7 @@ from Dataset.Datasets import Wisdm
 from Dataset.cook import cook2020
 from Dataset.Nonsense19 import NonSense
 from Process.Protocol import Loso
-
+#teste
 
 if __name__ == "__main__":
     
